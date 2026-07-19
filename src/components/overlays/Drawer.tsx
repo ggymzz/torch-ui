@@ -474,7 +474,11 @@ export function Drawer(props: DrawerProps) {
 
 	const closeOnOverlay = () => local.closeOnOverlayClick !== false
 
-	const hasFooter = () => showCancel() || local.onSave != null
+	// footer 仅在显式传入 onSave 或 onCancel 时渲染。
+	// 详情型 Drawer (仅传 onClose/onOpenChange) 不再渲染底部 footer,
+	// 关闭靠右上角 X 按钮 (由 canClose() && showCloseButton !== false 控制)。
+	// 这样避免了详情型 Drawer 底部出现孤零零的 Cancel 按钮一行。
+	const hasFooter = () => local.onSave != null || local.onCancel != null
 
 	const actionsPosition = () => local.actionsPosition ?? 'bottom'
 
@@ -534,9 +538,8 @@ export function Drawer(props: DrawerProps) {
 
 
 
-	// Show Cancel button and close button only when drawer is closable
-
-	const showCancel = () => canClose()
+	// Cancel 按钮渲染条件改为依赖 onCancel 显式传入 (见 actionsBlock),
+	// 详情型 Drawer (仅传 onClose/onOpenChange) 不再渲染底部 Cancel 按钮。
 
 
 
@@ -592,7 +595,7 @@ export function Drawer(props: DrawerProps) {
 
 		<div class="flex items-center justify-end gap-3">
 
-			<Show when={showCancel()} fallback={<span />}>
+			<Show when={local.onCancel != null} fallback={<span />}>
 
 				<KobalteDialog.CloseButton
 
@@ -722,29 +725,29 @@ export function Drawer(props: DrawerProps) {
 
 					{/* Header bar for top-end / top-start: inline buttons to avoid nested Show-in-function issues */}
 
-					<Show when={actionsPosition() === 'top-end' || actionsPosition() === 'top-start'}>
+				<Show when={actionsPosition() === 'top-end' || actionsPosition() === 'top-start'}>
 
-						<div class={cn('flex shrink-0 items-center gap-2 border-b border-surface-border px-6 py-4', actionsPosition() === 'top-start' ? 'justify-start' : 'justify-end')}>
+					<div class={cn('flex shrink-0 items-center gap-2 border-b border-surface-border px-6 py-4', actionsPosition() === 'top-start' ? 'justify-start' : 'justify-end')}>
 
-							<Show when={showCancel()}>
+						<Show when={local.onCancel != null}>
 
-								<KobalteDialog.CloseButton
+							<KobalteDialog.CloseButton
 
-									as={Button}
+								as={Button}
 
-									variant="ghost"
+								variant="ghost"
 
-									size="sm"
+								size="sm"
 
-									onClick={setCancelReason}
+								onClick={setCancelReason}
 
-								>
+							>
 
-									{local.cancelLabel ?? 'Cancel'}
+								{local.cancelLabel ?? 'Cancel'}
 
-								</KobalteDialog.CloseButton>
+							</KobalteDialog.CloseButton>
 
-							</Show>
+						</Show>
 
 							<Show when={local.onSave}>
 
