@@ -4,6 +4,7 @@ import { Input, type InputProps } from '../forms'
 import { Dialog, AlertDialog } from '../overlays'
 import { EmptyState } from './EmptyState'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 import {
 	Table,
@@ -158,6 +159,8 @@ export function DataTable<T>(props: DataTableProps<T>) {
 		'skeletonRows', 'sort', 'class', 'bare', 'striped', 'caption',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	if (import.meta.env.DEV && local.columns.length === 0) {
 		console.warn('DataTable: columns must not be empty')
@@ -204,7 +207,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 							/>
 						) : (
 							<div class="py-8 text-center text-sm text-ink-500">
-								{local.emptyMessage ?? 'No data'}
+								{local.emptyMessage ?? (zh() ? '暂无数据' : 'No data')}
 							</div>
 						)}
 					</TableCell>
@@ -303,11 +306,11 @@ export function DataTable<T>(props: DataTableProps<T>) {
 
 			<Show when={local.error}>
 				<p class="text-sm text-danger-600">
-					{local.error instanceof Error ? local.error.message : 'Failed to load'}
+					{local.error instanceof Error ? local.error.message : (zh() ? '加载失败' : 'Failed to load')}
 				</p>
 			</Show>
 			<Show when={local.loading}>
-				<div role="status" aria-live="polite" class="sr-only">Loading</div>
+				<div role="status" aria-live="polite" class="sr-only">{zh() ? '加载中' : 'Loading'}</div>
 			</Show>
 			<div class={cn('overflow-x-auto', !local.bare && TABLE_CONTAINER_CLASS)}>
 				<Table class="min-w-full" striped={local.striped} caption={local.caption}>
@@ -425,7 +428,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 							variant="outlined"
 							size="sm"
 							class="rounded-lg"
-							label="Load more"
+							label={zh() ? '加载更多' : 'Load more'}
 							loading={local.loadMore!.loading}
 							onClick={() => local.loadMore!.onLoadMore()}
 						/>
@@ -451,7 +454,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 						footer={
 							<div class="flex justify-end gap-2">
 								<Button type="button" variant="link" size="sm" onClick={modal().onClose} class="rounded-lg">
-									Cancel
+									{zh() ? '取消' : 'Cancel'}
 								</Button>
 								<Button
 									type="button"
@@ -461,7 +464,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 									loading={modal().saving}
 									class="rounded-lg"
 								>
-									Save
+									{zh() ? '保存' : 'Save'}
 								</Button>
 							</div>
 						}
@@ -481,7 +484,7 @@ export function DataTable<T>(props: DataTableProps<T>) {
 						onOpenChange={(open) => !open && dialog().onClose()}
 						title={dialog().title}
 						description={dialog().description}
-						confirmLabel="Delete"
+						confirmLabel={zh() ? '删除' : 'Delete'}
 						destructive
 						onConfirm={dialog().onConfirm}
 					/>

@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { Button } from '../actions'
 import { Autocomplete } from './Autocomplete'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 
 export interface FieldPickerOption {
 	value: string
@@ -36,6 +37,10 @@ export const FieldPicker = (props: FieldPickerProps) => {
 		'class',
 	])
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 	return (
 		<div class={cn('space-y-2', local.class)}>
 			<div class="flex items-end gap-2">
@@ -44,7 +49,7 @@ export const FieldPicker = (props: FieldPickerProps) => {
 					value={local.value}
 					onValueChange={local.onValueChange}
 					options={local.options}
-					placeholder={local.placeholder || 'Search fields...'}
+					placeholder={local.placeholder || (zh() ? '搜索字段...' : 'Search fields...')}
 					class="flex-1 min-w-0"
 				/>
 				<Button
@@ -56,7 +61,7 @@ export const FieldPicker = (props: FieldPickerProps) => {
 					disabled={local.addDisabled}
 					onClick={local.onAdd}
 				>
-					{local.addLabel || 'Add'}
+					{local.addLabel || (zh() ? '添加' : 'Add')}
 				</Button>
 			</div>
 		</div>

@@ -14,6 +14,8 @@ import { useIcons } from '../../icons'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 
 
 export interface MultiSelectOption {
@@ -222,6 +224,10 @@ function ChipContent(props: {
 
 	const icons = useIcons()
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 	const isActive = () => props.isActive?.() === true
 
 	const isDragging = () => props.isDragging?.() === true
@@ -278,9 +284,9 @@ function ChipContent(props: {
 
 					)}
 
-					aria-label="Drag to reorder"
+				aria-label={zh() ? '拖动排序' : 'Drag to reorder'}
 
-					onPointerDown={props.onGripPointerDown}
+				onPointerDown={props.onGripPointerDown}
 
 				>
 
@@ -316,7 +322,7 @@ function ChipContent(props: {
 
 				class="rounded p-0.5 hover:bg-surface-overlay outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 
-				aria-label={`Remove ${props.opt.label}`}
+				aria-label={zh() ? `移除 ${props.opt.label}` : `Remove ${props.opt.label}`}
 
 			>
 
@@ -554,6 +560,10 @@ export function MultiSelect(props: MultiSelectProps) {
 
 	const icons = useIcons()
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 	const contextSize = useComponentSize()
 
 
@@ -695,7 +705,7 @@ export function MultiSelect(props: MultiSelectProps) {
 
 				onChange={handleChange}
 
-				placeholder={local.placeholder ?? 'Select...'}
+				placeholder={local.placeholder ?? (zh() ? '请选择...' : 'Select...')}
 
 				disabled={local.disabled}
 
@@ -863,7 +873,7 @@ export function MultiSelect(props: MultiSelectProps) {
 
 											<span class="text-ink-400">
 
-												{local.placeholder ?? 'Select...'}
+												{local.placeholder ?? (zh() ? '请选择...' : 'Select...')}
 
 											</span>
 
@@ -976,7 +986,7 @@ export function MultiSelect(props: MultiSelectProps) {
 
 									onInput={(e) => setSearchQuery(e.currentTarget.value)}
 
-									placeholder="Search..."
+									placeholder={zh() ? '搜索...' : 'Search...'}
 
 									class={cn(
 

@@ -3,6 +3,7 @@ import { Input, Select } from './'
 import { parseRelativeDateDefault, formatRelativeDateDefault } from './relativeDateDefault'
 import { Inline } from '../layout'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 
 const SIGN_OPTIONS = [
 	{ value: '+', label: '+' },
@@ -21,6 +22,8 @@ export interface RelativeDateDefaultInputProps {
 
 /** Today + sign (+/−) + integer days. Produces stored value like "today+0", "today-7". */
 export function RelativeDateDefaultInput(props: RelativeDateDefaultInputProps) {
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const parsed = createMemo(() => parseRelativeDateDefault(props.value))
 	const sign = () => parsed().sign
 	const days = () => parsed().days
@@ -37,7 +40,7 @@ export function RelativeDateDefaultInput(props: RelativeDateDefaultInputProps) {
 	return (
 		<Inline class={cn('flex-nowrap', props.class)}>
 			<span class="shrink-0 text-sm font-medium text-ink-700">
-				{props.prefixLabel ?? 'Today'}
+				{props.prefixLabel ?? (zh() ? '今天' : 'Today')}
 			</span>
 			<Select
 				value={sign()}
@@ -55,7 +58,7 @@ export function RelativeDateDefaultInput(props: RelativeDateDefaultInputProps) {
 				placeholder="0"
 				class="w-24 rounded-lg pr-2"
 			/>
-			<span class="shrink-0 text-sm text-ink-500">{props.suffixLabel ?? 'day(s)'}</span>
+			<span class="shrink-0 text-sm text-ink-500">{props.suffixLabel ?? (zh() ? '天' : 'day(s)')}</span>
 		</Inline>
 	)
 }

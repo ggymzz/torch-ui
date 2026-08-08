@@ -11,6 +11,7 @@ import {
 import { DropdownMenu as KobalteDropdownMenu, type DropdownMenuRootProps as KobalteDropdownMenuRootProps } from '@kobalte/core/dropdown-menu'
 import { ToggleGroup as KobalteToggleGroup } from '@kobalte/core/toggle-group'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { Button } from './Button'
 import type { ButtonProps, ButtonVariant } from './Button'
 import { type ComponentSize } from '../../types/component-size'
@@ -176,6 +177,8 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 		'onOpenChange',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const mode: 'toggle' | 'split' | 'default' =
 		local.options != null ? 'toggle'
@@ -268,7 +271,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 					<div
 						data-torchui="button-group"
 						role="group"
-						aria-label={local.splitButtonAriaLabel ?? 'Split button'}
+						aria-label={local.splitButtonAriaLabel ?? (zh() ? '分割按钮' : 'Split button')}
 						class={cn(splitBaseClasses, local.class)}
 						{...others}
 					>
@@ -284,7 +287,7 @@ export function ButtonGroupRoot(props: ButtonGroupProps) {
 								splitTriggerSizes[size()],
 								local.disabled && 'opacity-50'
 							)}
-							aria-label="Open menu"
+							aria-label={zh() ? '打开菜单' : 'Open menu'}
 						>
 							{icons.chevronDown({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 						</KobalteDropdownMenu.Trigger>

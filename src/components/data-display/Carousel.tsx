@@ -1,5 +1,6 @@
 import { type JSX, createSignal, createMemo, createEffect, on, onMount, onCleanup, splitProps, For, Show } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 export interface CarouselSlide {
@@ -44,6 +45,8 @@ export function Carousel(props: CarouselProps) {
 		'class',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const [currentSlide, setCurrentSlide] = createSignal(0)
 	const [progressBarReady, setProgressBarReady] = createSignal(false)
@@ -167,7 +170,7 @@ export function Carousel(props: CarouselProps) {
 						'bg-surface-raised/80 hover:bg-surface-raised text-ink-700 shadow-sm',
 						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
 					)}
-					aria-label="Previous slide"
+					aria-label={zh() ? '上一张' : 'Previous slide'}
 				>
 					{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 				</button>
@@ -179,7 +182,7 @@ export function Carousel(props: CarouselProps) {
 						'bg-surface-raised/80 hover:bg-surface-raised text-ink-700 shadow-sm',
 						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50'
 					)}
-					aria-label="Next slide"
+					aria-label={zh() ? '下一张' : 'Next slide'}
 				>
 					{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 				</button>
@@ -209,7 +212,7 @@ export function Carousel(props: CarouselProps) {
 										? 'rgba(255,255,255,0.4)'
 										: 'var(--color-ink-400)',
 								}}
-								aria-label={`Go to slide ${index() + 1}`}
+								aria-label={zh() ? `跳转到第 ${index() + 1} 张` : `Go to slide ${index() + 1}`}
 								aria-current={index() === currentSlide() ? 'true' : undefined}
 							>
 								<Show when={index() === currentSlide() && autoPlayInterval() > 0}>

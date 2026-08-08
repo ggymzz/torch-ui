@@ -2,6 +2,8 @@ import { createEffect, on, type JSX, splitProps, createUniqueId } from 'solid-js
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { type ComponentSize } from '../../types/component-size'
 
 import { mergeRefs } from '../../utilities/mergeRefs'
@@ -106,6 +108,10 @@ function CodeInputSingle(props: CodeInputProps) {
 
 	])
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 
 
 	const length = () => local.length ?? 6
@@ -178,7 +184,7 @@ function CodeInputSingle(props: CodeInputProps) {
 
 					{!local.required && local.optional && (
 
-						<span class="text-xs text-ink-500">optional</span>
+						<span class="text-xs text-ink-500">{zh() ? '选填' : 'optional'}</span>
 
 					)}
 
@@ -261,6 +267,10 @@ function CodeInputSingle(props: CodeInputProps) {
 
 
 function CodeInputDigits(props: CodeInputProps) {
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const length = () => props.length ?? 6
 
@@ -426,7 +436,7 @@ function CodeInputDigits(props: CodeInputProps) {
 
 					{!props.required && props.optional && (
 
-						<span class="text-xs text-ink-500">optional</span>
+						<span class="text-xs text-ink-500">{zh() ? '选填' : 'optional'}</span>
 
 					)}
 
@@ -440,7 +450,7 @@ function CodeInputDigits(props: CodeInputProps) {
 
 				role="group"
 
-				aria-label="Verification code digits"
+				aria-label={zh() ? '验证码数字' : 'Verification code digits'}
 
 			>
 
@@ -486,7 +496,7 @@ function CodeInputDigits(props: CodeInputProps) {
 
 						)}
 
-						aria-label={`Digit ${i + 1}`}
+						aria-label={zh() ? `第 ${i + 1} 位` : `Digit ${i + 1}`}
 
 						aria-invalid={hasError() ? 'true' : undefined}
 

@@ -16,7 +16,7 @@ import {
   HoverCardSeparator,
   HoverCardTrigger,
   SearchPalette
-} from "../chunk/LNXL5YYT.jsx";
+} from "../chunk/2AQ2XW3Q.jsx";
 import {
   AlertDialog,
   Dialog,
@@ -37,7 +37,7 @@ import {
   TooltipPortal,
   TooltipRoot,
   TooltipTrigger
-} from "../chunk/ZFKQFTHG.jsx";
+} from "../chunk/7WUK277F.jsx";
 import "../chunk/N5KQYWCA.jsx";
 export {
   AlertDialog,

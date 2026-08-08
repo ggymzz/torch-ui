@@ -1,6 +1,7 @@
 import { Show, onMount, type JSX, splitProps, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 const DEFAULT_DURATION_MS = 200
@@ -156,6 +157,8 @@ export function Dialog(props: DialogProps) {
 		'footer',
 		'ref',
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	// Dev warning for accessibility
 	if (import.meta.env?.DEV) {
@@ -297,7 +300,7 @@ export function Dialog(props: DialogProps) {
 										</Show>
 										<Show when={hasCloseRow()}>
 											<KobalteDialog.CloseButton
-												aria-label="Close"
+												aria-label={zh() ? '关闭' : 'Close'}
 												class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 											>
 												{icons.close({ class: 'h-5 w-5', 'aria-hidden': 'true' })}

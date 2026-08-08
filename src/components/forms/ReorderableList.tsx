@@ -2,6 +2,8 @@ import { For, Show, type JSX, splitProps, onCleanup } from 'solid-js'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { createSortableDrag } from '../../utilities/createSortableDrag'
 
 import { useIcons } from '../../icons'
@@ -142,6 +144,10 @@ export function ReorderableList(props: ReorderableListProps) {
 
   const icons = useIcons()
 
+  const contextLocale = useLocaleConfig()
+
+  const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 
 
   const drag = createSortableDrag({
@@ -262,7 +268,7 @@ export function ReorderableList(props: ReorderableListProps) {
 
                   )}
 
-                  aria-label={`Drag to reorder ${item.label}`}
+                  aria-label={zh() ? `拖动排序 ${item.label}` : `Drag to reorder ${item.label}`}
 
                   onKeyDown={(e: KeyboardEvent) => {
 
@@ -332,7 +338,7 @@ export function ReorderableList(props: ReorderableListProps) {
 
                     icon={icons.chevronUp({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
-                    label={`Move ${item.label} up`}
+                    label={zh() ? `上移 ${item.label}` : `Move ${item.label} up`}
 
                     disabled={!canMoveUp()}
 
@@ -350,7 +356,7 @@ export function ReorderableList(props: ReorderableListProps) {
 
                     icon={icons.chevronDown({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
-                    label={`Move ${item.label} down`}
+                    label={zh() ? `下移 ${item.label}` : `Move ${item.label} down`}
 
                     disabled={!canMoveDown()}
 
@@ -372,7 +378,7 @@ export function ReorderableList(props: ReorderableListProps) {
 
                     icon={icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
-                    label={`Remove ${item.label}`}
+                    label={zh() ? `移除 ${item.label}` : `Remove ${item.label}`}
 
                     onClick={() => local.onRemove?.(item.id)}
 

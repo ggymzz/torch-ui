@@ -1,6 +1,7 @@
 import { createSignal, createEffect, on, Show, For, Index, type JSX, splitProps, onMount, onCleanup } from 'solid-js'
 import { Dialog as KobalteDialog } from '@kobalte/core/dialog'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 /* ------------------------------------------------------------------ */
@@ -71,6 +72,8 @@ export function SearchPalette(props: SearchPaletteProps) {
 		'categoriesLabel', 'showKeyboardHints', 'class',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	let inputRef: HTMLInputElement | undefined
 	const [activeIndex, setActiveIndex] = createSignal(-1)
@@ -183,7 +186,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 								type="text"
 								value={local.query}
 								onInput={(e) => local.onQueryChange(e.currentTarget.value)}
-								placeholder={local.placeholder ?? 'Search…'}
+								placeholder={local.placeholder ?? (zh() ? '搜索…' : 'Search…')}
 								class="flex-1 bg-transparent text-sm text-ink-900 placeholder:text-ink-400 outline-none"
 							/>
 							<Show when={local.query.length > 0}>
@@ -194,7 +197,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 										inputRef?.focus()
 									}}
 									class="shrink-0 rounded p-0.5 text-ink-400 hover:text-ink-600 outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
-									aria-label="Clear search"
+									aria-label={zh() ? '清除搜索' : 'Clear search'}
 								>
 									{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 								</button>
@@ -205,7 +208,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 						<Show when={local.categories && local.categories.length > 0}>
 							<div class="border-b border-surface-border px-4 py-3">
 								<p class="mb-2 text-xs font-medium text-ink-500">
-									{local.categoriesLabel ?? "I'm Searching…"}
+									{local.categoriesLabel ?? (zh() ? '正在搜索…' : "I'm Searching…")}
 								</p>
 								<div class="flex flex-wrap gap-1.5">
 									<For each={local.categories}>
@@ -242,7 +245,7 @@ export function SearchPalette(props: SearchPaletteProps) {
 								when={totalItems() > 0}
 								fallback={
 									<div class="px-4 py-8 text-center text-sm text-ink-500">
-										{local.emptyMessage ?? 'No results found.'}
+										{local.emptyMessage ?? (zh() ? '暂无结果' : 'No results found.')}
 									</div>
 								}
 							>

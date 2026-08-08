@@ -1,5 +1,6 @@
 import { type JSX, For, Show, createEffect, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { DropdownMenuContent, DropdownMenuItem } from './DropdownMenu'
 import { DropdownMenu as KobalteDropdownMenu } from '@kobalte/core/dropdown-menu'
 import { useIcons } from '../../icons'
@@ -41,6 +42,8 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 		'maxVisible', 'moreLabel', 'variant', 'ariaLabel', 'class',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const [dynamicMax, setDynamicMax] = createSignal<number | null>(null)
 	let containerRef: HTMLDivElement | undefined
@@ -207,7 +210,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 		<div
 			ref={(el) => (containerRef = el)}
 			role="group"
-			aria-label={local.ariaLabel ?? 'Views'}
+			aria-label={local.ariaLabel ?? (zh() ? '视图' : 'Views')}
 			class={cn(containerClass(), local.class)}
 		>
 			{(() => {
@@ -270,7 +273,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 						<Show when={ov.length > 0}>
 							<KobalteDropdownMenu>
 								<KobalteDropdownMenu.Trigger as="button" type="button" class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-ink-600 hover:bg-surface-raised hover:text-ink-900">
-									{local.moreLabel ?? 'More'}
+									{local.moreLabel ?? (zh() ? '更多' : 'More')}
 									<span class="rounded-full bg-surface-overlay px-2 py-0.5 text-xs font-semibold text-ink-600">
 										{ov.length}
 									</span>
@@ -307,7 +310,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
 					variant="ghost"
 					size="xs"
 					icon={local.addIcon}
-					label="Add view"
+					label={zh() ? '添加视图' : 'Add view'}
 					onClick={local.onAdd}
 					class="ml-2 self-center h-7 w-7 hover:bg-surface-raised hover:text-ink-900"
 				/>

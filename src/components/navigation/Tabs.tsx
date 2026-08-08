@@ -1,6 +1,7 @@
 import { For, splitProps, type Accessor } from 'solid-js'
 import { Tabs as KobalteTabs, type TabsRootProps as KobalteTabsRootProps, type TabsListProps as KobalteTabsListProps, type TabsTriggerProps as KobalteTabsTriggerProps, type TabsContentProps as KobalteTabsContentProps } from '@kobalte/core/tabs'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 
 /** Kobalte tabs root. Use for custom tab layouts; prefer Tabs for the standard tab bar. */
 export { KobalteTabs }
@@ -29,6 +30,8 @@ export function Tabs(props: TabsProps) {
 	const [local, others] = splitProps(props, [
 		'tabs', 'value', 'defaultValue', 'onValueChange', 'ariaLabel', 'class',
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const resolvedValue = () => {
 		const v = local.value
@@ -53,7 +56,7 @@ export function Tabs(props: TabsProps) {
 			>
 				<KobalteTabs.List
 					class="flex w-full flex-nowrap gap-1 overflow-x-auto rounded-none border-0 bg-transparent p-0"
-					aria-label={local.ariaLabel ?? 'Tabs'}
+					aria-label={local.ariaLabel ?? (zh() ? '标签页' : 'Tabs')}
 				>
 					<For each={local.tabs}>
 						{(tab) => (

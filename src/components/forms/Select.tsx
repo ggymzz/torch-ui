@@ -10,6 +10,8 @@ import { useIcons } from '../../icons'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 
 
 export interface SelectOption {
@@ -207,6 +209,10 @@ export const Select = (props: SelectProps) => {
 	])
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const contextSize = useComponentSize()
 
@@ -455,7 +461,7 @@ export const Select = (props: SelectProps) => {
 
 						const opt = state.selectedOption()
 
-						if (!opt) return <span class="truncate">{local.placeholder || 'Select an option'}</span>
+						if (!opt) return <span class="truncate">{local.placeholder || (zh() ? '请选择' : 'Select an option')}</span>
 
 						return (
 
@@ -562,7 +568,7 @@ export const Select = (props: SelectProps) => {
 
 							onInput={(e) => setSearchQuery(e.currentTarget.value)}
 
-							placeholder="Search..."
+							placeholder={zh() ? '搜索...' : 'Search...'}
 
 							class={cn(
 
@@ -613,7 +619,7 @@ export const Select = (props: SelectProps) => {
 
 					optionTextValue="label"
 
-					placeholder={local.placeholder || 'Select an option'}
+					placeholder={local.placeholder || (zh() ? '请选择' : 'Select an option')}
 
 					disabled={local.disabled}
 
@@ -650,7 +656,7 @@ export const Select = (props: SelectProps) => {
 
 					optionGroupChildren="options"
 
-					placeholder={local.placeholder || 'Select an option'}
+					placeholder={local.placeholder || (zh() ? '请选择' : 'Select an option')}
 
 					disabled={local.disabled}
 

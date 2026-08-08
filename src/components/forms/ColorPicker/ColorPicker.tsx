@@ -16,6 +16,8 @@ import { Button } from '../../actions'
 
 import { cn } from '../../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../../utilities/localeContext'
+
 import { type ComponentSize } from '../../../types/component-size'
 
 import { normalizeHex, rgbaToHex } from '../../../utilities/colorUtils'
@@ -202,6 +204,10 @@ export function ColorPicker(props: ColorPickerProps) {
 
 	const icons = useIcons()
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 	const triggerId = createUniqueId()
 
 	const hasError = () => !!local.error
@@ -314,7 +320,7 @@ export function ColorPicker(props: ColorPickerProps) {
 
 					<Show when={!local.required && local.optional}>
 
-						<span class="text-xs text-ink-500">optional</span>
+						<span class="text-xs text-ink-500">{zh() ? '选填' : 'optional'}</span>
 
 					</Show>
 
@@ -350,9 +356,9 @@ export function ColorPicker(props: ColorPickerProps) {
 
 						style={{ 'background-color': currentHex() || 'transparent' }}
 
-						title="Choose color"
+						title={zh() ? '选择颜色' : 'Choose color'}
 
-						aria-label="Choose color"
+						aria-label={zh() ? '选择颜色' : 'Choose color'}
 
 					/>
 
@@ -426,7 +432,7 @@ export function ColorPicker(props: ColorPickerProps) {
 
 									title={hex}
 
-									aria-label={`Set color to ${hex}`}
+									aria-label={zh() ? `将颜色设置为 ${hex}` : `Set color to ${hex}`}
 
 									onClick={() => handlePresetClick(hex)}
 
@@ -456,9 +462,9 @@ export function ColorPicker(props: ColorPickerProps) {
 
 							)}
 
-							title="Custom color"
+							title={zh() ? '自定义颜色' : 'Custom color'}
 
-							aria-label="Custom color"
+							aria-label={zh() ? '自定义颜色' : 'Custom color'}
 
 							onClick={() => setCustomOpen(true)}
 
@@ -539,6 +545,10 @@ interface ColorPickerCustomPanelProps {
 function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const formats = () => props.allowedFormats
 
@@ -624,7 +634,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 			<div class="mb-3 flex items-center justify-between">
 
-				<span class="text-sm font-semibold text-ink-900">Color Picker</span>
+				<span class="text-sm font-semibold text-ink-900">{zh() ? '颜色选择器' : 'Color Picker'}</span>
 
 				<button
 
@@ -634,7 +644,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 					onClick={props.onCancel}
 
-					aria-label="Close"
+					aria-label={zh() ? '关闭' : 'Close'}
 
 				>
 
@@ -784,7 +794,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 							}}
 
-							aria-label="Hex color value"
+							aria-label={zh() ? '十六进制颜色值' : 'Hex color value'}
 
 							class="w-full rounded-lg border border-surface-border bg-surface-raised px-2 py-1.5 font-mono text-sm text-ink-900"
 
@@ -924,7 +934,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 				<div class="mb-4">
 
-					<p class="mb-1.5 text-xs font-medium text-ink-500">Last used</p>
+					<p class="mb-1.5 text-xs font-medium text-ink-500">{zh() ? '最近使用' : 'Last used'}</p>
 
 					<div class="flex flex-wrap gap-1.5">
 
@@ -942,7 +952,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 									title={hex}
 
-									aria-label={`Set color to ${hex}`}
+									aria-label={zh() ? `将颜色设置为 ${hex}` : `Set color to ${hex}`}
 
 									onClick={() => props.onLastUsedClick(hex)}
 
@@ -966,7 +976,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 				<div class="mb-4">
 
-					<p class="mb-1.5 text-xs font-medium text-ink-500">Presets</p>
+					<p class="mb-1.5 text-xs font-medium text-ink-500">{zh() ? '预设' : 'Presets'}</p>
 
 					<div class="flex flex-wrap gap-1.5">
 
@@ -984,7 +994,7 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 									title={hex}
 
-									aria-label={`Set color to ${hex}`}
+									aria-label={zh() ? `将颜色设置为 ${hex}` : `Set color to ${hex}`}
 
 									onClick={() => { const n = normalizeHex(hex); if (n) props.onApply(n) }}
 
@@ -1006,13 +1016,13 @@ function ColorPickerCustomPanel(props: ColorPickerCustomPanelProps) {
 
 				<Button variant="outlined" size="sm" onClick={props.onCancel}>
 
-					Cancel
+					{zh() ? '取消' : 'Cancel'}
 
 				</Button>
 
-				<Button variant="primary" size="sm" onClick={() => props.onApply(hex())} aria-label="Apply selected color">
+				<Button variant="primary" size="sm" onClick={() => props.onApply(hex())} aria-label={zh() ? '应用所选颜色' : 'Apply selected color'}>
 
-					Apply
+					{zh() ? '应用' : 'Apply'}
 
 				</Button>
 

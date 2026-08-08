@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 export type AlertStatus = 'error' | 'success' | 'warning' | 'info'
@@ -93,6 +94,8 @@ export function Alert(props: AlertProps): JSX.Element {
 		'children',
 		'ref',
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const status = () => local.status ?? 'error'
 	const appearance = () => local.appearance ?? 'subtle'
 	const colorClasses = () =>
@@ -144,7 +147,7 @@ export function Alert(props: AlertProps): JSX.Element {
 							type="button"
 							onClick={local.onClose}
 							class="rounded p-1 opacity-70 hover:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-inset"
-							aria-label="Close"
+							aria-label={zh() ? '关闭' : 'Close'}
 						>
 							{icons.close({ class: 'size-4', 'aria-hidden': 'true' })}
 						</button>

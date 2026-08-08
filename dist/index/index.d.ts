@@ -11,7 +11,7 @@ export { AccordionContent, AccordionContentProps, AccordionContentStyled, Accord
 export { D as Dialog, a as DialogOverlayAnimation, b as DialogPanelAnimation, c as DialogProps, d as DialogSize, e as Drawer, f as DrawerActionsPosition, g as DrawerOffset, h as DrawerProps, i as DrawerSide, j as DrawerSize, P as Popover, k as PopoverAlign, l as PopoverAnchor, m as PopoverArrow, n as PopoverCloseButton, o as PopoverContent, p as PopoverContentPrimitive, q as PopoverContentProps, r as PopoverPortal, s as PopoverRoot, t as PopoverRootProps, u as PopoverSide, v as PopoverTrigger, T as Tooltip, w as TooltipArrow, x as TooltipContent, y as TooltipContentPrimitive, z as TooltipContentProps, A as TooltipPortal, B as TooltipRoot, C as TooltipTrigger } from '../Popover-mxeiEsmy.js';
 export { B as BlockQuote, a as BlockQuoteJustify, b as BlockQuoteProps } from '../BlockQuote-BKLW0_Mz.js';
 export { BreadcrumbItem, Breadcrumbs, BreadcrumbsProps, DropdownMenu, DropdownMenuContent, DropdownMenuContentProps, DropdownMenuItem, DropdownMenuItemProps, DropdownMenuSeparator, DropdownMenuSeparatorProps, DropdownMenuTrigger, DropdownMenuTriggerProps, MegaMenu, MegaMenuBar, MegaMenuBarLink, MegaMenuBarProps, MegaMenuColumn, MegaMenuContent, MegaMenuContentProps, MegaMenuDivider, MegaMenuFeatured, MegaMenuFeaturedProps, MegaMenuFooter, MegaMenuFooterLink, MegaMenuItem, MegaMenuItemProps, MegaMenuMenu, MegaMenuPanel, MegaMenuPanelProps, MegaMenuSection, MegaMenuTrigger, MegaMenuTriggerProps, MenuBar, MenuBarContent, MenuBarContentProps, MenuBarDivider, MenuBarItem, MenuBarItemProps, MenuBarLabel, MenuBarLink, MenuBarLinkProps, MenuBarMenu, MenuBarNavLink, MenuBarProps, MenuBarTrigger, MenuBarTriggerProps, Sidebar, SidebarFooter, SidebarGroup, SidebarItem, SidebarProps, TabItem, Tabs, TabsContent, TabsContentProps, TabsList, TabsListProps, TabsProps, TabsTrigger, TabsTriggerProps, ViewScope, ViewSwitcher, ViewSwitcherItem, ViewSwitcherProps } from '../navigation/index.js';
-export { P as Pagination, a as PaginationProps } from '../Pagination-BEI4IwQU.js';
+export { P as Pagination, a as PaginationProps } from '../Pagination-PJmlDCzJ.js';
 export { ContextMenu, ContextMenuContent, ContextMenuContentProps, ContextMenuItem, ContextMenuItemProps, ContextMenuRoot, ContextMenuSeparator, ContextMenuSeparatorProps, ContextMenuTrigger, HoverCard, HoverCardAlign, HoverCardArrow, HoverCardBody, HoverCardContent, HoverCardContentProps, HoverCardFooter, HoverCardHeader, HoverCardPlacement, HoverCardPortal, HoverCardRoot, HoverCardRootProps, HoverCardSeparator, HoverCardSide, HoverCardTrigger, SearchPalette, SearchPaletteCategory, SearchPaletteGroup, SearchPaletteItem, SearchPaletteProps } from '../overlays/index.js';
 export { Code, CodeProps, Icon, IconProps } from '../typography/index.js';
 import { JSX } from 'solid-js';
@@ -133,6 +133,46 @@ declare function useAppLocale(): {
     direction: () => _kobalte_core_i18n.Direction;
 };
 
+/** Built-in label locales supported by torch-ui components. Default: "en". */
+type TorchLocale = 'en' | 'zh';
+interface LocaleProviderProps {
+    /** Locale for all built-in component labels. Default: "en". */
+    locale?: TorchLocale;
+    children: JSX.Element;
+}
+/**
+ * Provides a default locale for every torch-ui component with built-in labels
+ * (Pagination, DatePicker, Select, AlertDialog, FileUpload, etc.). Works like
+ * ANTD's ConfigProvider: components read the locale from context unless an
+ * explicit `locale`/`labels` prop overrides it. When no provider is present,
+ * components keep their upstream English defaults.
+ *
+ * @example
+ * ```tsx
+ * function App() {
+ *   return (
+ *     <LocaleProvider locale="zh">
+ *       <MyApp />
+ *     </LocaleProvider>
+ *   )
+ * }
+ * ```
+ */
+declare function LocaleProvider(props: LocaleProviderProps): JSX.Element;
+/**
+ * Hook to read the nearest LocaleProvider locale. Returns `undefined` when no
+ * provider is mounted (components fall back to their "en" defaults).
+ */
+declare function useLocaleConfig(): TorchLocale | undefined;
+/**
+ * Resolve the effective locale: explicit prop wins, then context, then "en".
+ *
+ * @param explicit - Locale passed via an explicit `locale` prop (undefined if not set)
+ * @param contextLocale - Locale from the nearest LocaleProvider (undefined if none)
+ * @returns The effective locale to use for component labels
+ */
+declare function resolveLocale(explicit: TorchLocale | undefined, contextLocale: TorchLocale | undefined): TorchLocale;
+
 interface ComponentSizeProviderProps {
     size?: ComponentSize;
     children: JSX.Element;
@@ -166,4 +206,4 @@ interface CreateSortableDragOptions<T extends SortableDragItem> {
 }
 declare function createSortableDrag<T extends SortableDragItem>(options: CreateSortableDragOptions<T>): SortableDragState;
 
-export { AppI18nProvider, ComponentSize, ComponentSizeProvider, type ComponentSizeProviderProps, type CreateSortableDragOptions, ComponentSizeProvider as FormSizeProvider, type ComponentSizeProviderProps as FormSizeProviderProps, IconsProvider, type SortableDragItem, type SortableDragState, type TorchUIIconComponent, type TorchUIIcons, cn, createSortableDrag, defaultIcons, mergeRefs, useAppLocale, useComponentSize, useComponentSize as useFormSize, useIcons };
+export { AppI18nProvider, ComponentSize, ComponentSizeProvider, type ComponentSizeProviderProps, type CreateSortableDragOptions, ComponentSizeProvider as FormSizeProvider, type ComponentSizeProviderProps as FormSizeProviderProps, IconsProvider, LocaleProvider, type LocaleProviderProps, type SortableDragItem, type SortableDragState, type TorchLocale, type TorchUIIconComponent, type TorchUIIcons, cn, createSortableDrag, defaultIcons, mergeRefs, resolveLocale, useAppLocale, useComponentSize, useComponentSize as useFormSize, useIcons, useLocaleConfig };

@@ -4,6 +4,8 @@ import { createStore } from 'solid-js/store'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from '../layout'
 
 import { useIcons } from '../../icons'
@@ -139,6 +141,10 @@ function ChevronIcon() {
 export function Sidebar(props: SidebarProps) {
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const [local, others] = splitProps(props, [
 
@@ -658,7 +664,7 @@ export function Sidebar(props: SidebarProps) {
 
 							onClick={() => local.onCollapseChange?.(!local.collapsed)}
 
-							aria-label={local.collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+							aria-label={local.collapsed ? (zh() ? '展开侧边栏' : 'Expand sidebar') : (zh() ? '折叠侧边栏' : 'Collapse sidebar')}
 
 						>
 
@@ -678,7 +684,7 @@ export function Sidebar(props: SidebarProps) {
 
 				class={navigationClass()}
 
-				aria-label={local.title || 'Sidebar navigation'}
+				aria-label={local.title || (zh() ? '侧边栏导航' : 'Sidebar navigation')}
 
 			>
 

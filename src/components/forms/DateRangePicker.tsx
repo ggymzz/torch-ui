@@ -6,6 +6,8 @@ import { TimeSelect } from './TimeSelect'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
@@ -95,6 +97,16 @@ const MONTH_NAMES = [
 	'January', 'February', 'March', 'April', 'May', 'June',
 
 	'July', 'August', 'September', 'October', 'November', 'December',
+
+]
+
+const ZH_DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六']
+
+const ZH_MONTH_NAMES = [
+
+	'一月', '二月', '三月', '四月', '五月', '六月',
+
+	'七月', '八月', '九月', '十月', '十一月', '十二月',
 
 ]
 
@@ -210,6 +222,10 @@ interface MonthGridProps {
 
 function MonthGrid(props: MonthGridProps) {
 
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
 	const days = createMemo(() => getCalendarDays(props.year, props.month))
 
 
@@ -298,9 +314,9 @@ function MonthGrid(props: MonthGridProps) {
 
 				<For each={DAY_NAMES}>
 
-					{(name) => (
+					{(name, i) => (
 
-						<div class="py-1 text-center text-xs font-medium text-ink-400">{name}</div>
+						<div class="py-1 text-center text-xs font-medium text-ink-400">{zh() ? ZH_DAY_NAMES[i()] : name}</div>
 
 					)}
 
@@ -435,6 +451,10 @@ export function DateRangePicker(props: DateRangePickerProps) {
 	])
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const contextSize = useComponentSize()
 
@@ -1026,7 +1046,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 							>
 
-								{name.slice(0, 3)}
+								{zh() ? ZH_MONTH_NAMES[mi()] : name.slice(0, 3)}
 
 							</button>
 
@@ -1114,7 +1134,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 					<Show when={!local.required && local.optional}>
 
-						<span class="text-xs text-ink-400">optional</span>
+						<span class="text-xs text-ink-400">{zh() ? '选填' : 'optional'}</span>
 
 					</Show>
 
@@ -1176,7 +1196,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 						<span class={cn('truncate', displayValue() ? 'text-ink-900' : 'text-ink-400')}>
 
-							{displayValue() || (local.placeholder ?? 'Pick a date range')}
+							{displayValue() || (local.placeholder ?? (zh() ? '选择日期范围' : 'Pick a date range'))}
 
 						</span>
 
@@ -1192,7 +1212,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 
-							aria-label="Clear date range"
+							aria-label={zh() ? '清除日期范围' : 'Clear date range'}
 
 						>
 
@@ -1242,7 +1262,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										<div class="flex items-center justify-between mb-2">
 
-											<button type="button" onClick={prevLeft} class={navBtnClass} aria-label="Previous month">
+											<button type="button" onClick={prevLeft} class={navBtnClass} aria-label={zh() ? '上个月' : 'Previous month'}>
 
 												{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1252,7 +1272,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 												<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
 
-													{MONTH_NAMES[viewLeft().month]}
+													{zh() ? ZH_MONTH_NAMES[viewLeft().month] : MONTH_NAMES[viewLeft().month]}
 
 												</button>
 
@@ -1264,7 +1284,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 											</div>
 
-											<button type="button" onClick={nextLeft} class={navBtnClass} aria-label="Next month">
+											<button type="button" onClick={nextLeft} class={navBtnClass} aria-label={zh() ? '下个月' : 'Next month'}>
 
 												{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1320,7 +1340,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										<Show when={local.showTime}>
 
-											<TimeRow label="Start" hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
+											<TimeRow label={zh() ? '开始' : 'Start'} hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
 
 										</Show>
 
@@ -1342,7 +1362,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										<div class="flex items-center justify-between mb-2">
 
-											<button type="button" onClick={prevRight} class={navBtnClass} aria-label="Previous month">
+											<button type="button" onClick={prevRight} class={navBtnClass} aria-label={zh() ? '上个月' : 'Previous month'}>
 
 												{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1352,7 +1372,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 												<button type="button" onClick={() => setViewModeRight(viewModeRight() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
 
-													{MONTH_NAMES[viewRight().month]}
+													{zh() ? ZH_MONTH_NAMES[viewRight().month] : MONTH_NAMES[viewRight().month]}
 
 												</button>
 
@@ -1364,7 +1384,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 											</div>
 
-											<button type="button" onClick={nextRight} class={navBtnClass} aria-label="Next month">
+											<button type="button" onClick={nextRight} class={navBtnClass} aria-label={zh() ? '下个月' : 'Next month'}>
 
 												{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1420,7 +1440,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										<Show when={local.showTime}>
 
-											<TimeRow label="End" hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
+											<TimeRow label={zh() ? '结束' : 'End'} hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
 
 										</Show>
 
@@ -1442,7 +1462,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 									<Show when={viewModeLeft() !== 'calendar'} fallback={
 
-										<button type="button" onClick={prevMonth} class={navBtnClass} aria-label="Previous month">
+										<button type="button" onClick={prevMonth} class={navBtnClass} aria-label={zh() ? '上个月' : 'Previous month'}>
 
 											{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1450,7 +1470,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 									}>
 
-										<button type="button" onClick={() => setViewModeLeft('calendar')} class={navBtnClass} aria-label="Back to calendar">
+										<button type="button" onClick={() => setViewModeLeft('calendar')} class={navBtnClass} aria-label={zh() ? '返回日历' : 'Back to calendar'}>
 
 											{icons.chevronLeft({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1462,7 +1482,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										<button type="button" onClick={() => setViewModeLeft(viewModeLeft() === 'months' ? 'calendar' : 'months')} class={monthYearBtnClass}>
 
-											{MONTH_NAMES[viewLeft().month]}
+											{zh() ? ZH_MONTH_NAMES[viewLeft().month] : MONTH_NAMES[viewLeft().month]}
 
 										</button>
 
@@ -1476,7 +1496,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 									<Show when={viewModeLeft() === 'calendar'} fallback={<div class="w-7" />}>
 
-										<button type="button" onClick={nextMonth} class={navBtnClass} aria-label="Next month">
+										<button type="button" onClick={nextMonth} class={navBtnClass} aria-label={zh() ? '下个月' : 'Next month'}>
 
 											{icons.chevronRight({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 
@@ -1534,9 +1554,9 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 								<Show when={local.showTime}>
 
-									<TimeRow label="Start" hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
+									<TimeRow label={zh() ? '开始' : 'Start'} hour={pendingStartHour} hour12={displayStartHour12} ampm={displayStartAmPm} minute={pendingStartMinute} onHour24={(h) => handleStartTimeChange(h, pendingStartMinute())} onHour12={handleStartHour12Change} onMinute={(m) => handleStartTimeChange(pendingStartHour(), m)} onToggleAmPm={toggleStartAmPm} />
 
-									<TimeRow label="End" hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
+									<TimeRow label={zh() ? '结束' : 'End'} hour={pendingEndHour} hour12={displayEndHour12} ampm={displayEndAmPm} minute={pendingEndMinute} onHour24={(h) => handleEndTimeChange(h, pendingEndMinute())} onHour12={handleEndHour12Change} onMinute={(m) => handleEndTimeChange(pendingEndHour(), m)} onToggleAmPm={toggleEndAmPm} />
 
 								</Show>
 
@@ -1554,13 +1574,13 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										{pickingEnd()
 
-											? 'Now select an end date'
+											? (zh() ? '现在选择结束日期' : 'Now select an end date')
 
 											: (local.start && local.end)
 
 												? displayValue()
 
-												: 'Select a start date'}
+												: (zh() ? '选择开始日期' : 'Select a start date')}
 
 									</div>
 
@@ -1578,7 +1598,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 											>
 
-												Clear
+												{zh() ? '清除' : 'Clear'}
 
 											</button>
 
@@ -1594,7 +1614,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
 
 										>
 
-											Done
+											{zh() ? '完成' : 'Done'}
 
 										</button>
 

@@ -2,11 +2,32 @@ import { describe, expect, it, vi } from 'vitest'
 import { screen } from '@solidjs/testing-library'
 import userEvent from '@testing-library/user-event'
 import { Pagination } from '../../components/navigation/Pagination'
+import { LocaleProvider } from '../../utilities/localeContext'
 import { renderUI } from '../../test/test-utils'
 
 describe('Pagination', () => {
 	it('renders prev and next buttons', () => {
 		renderUI(() => <Pagination page={2} totalPages={10} onPageChange={vi.fn()} />)
+		expect(screen.getByRole('button', { name: 'Previous page' })).toBeInTheDocument()
+		expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument()
+	})
+
+	it('uses Chinese labels when wrapped in a LocaleProvider locale="zh"', () => {
+		renderUI(() => (
+			<LocaleProvider locale="zh">
+				<Pagination page={2} totalPages={10} onPageChange={vi.fn()} />
+			</LocaleProvider>
+		))
+		expect(screen.getByRole('button', { name: '上一页' })).toBeInTheDocument()
+		expect(screen.getByRole('button', { name: '下一页' })).toBeInTheDocument()
+	})
+
+	it('lets an explicit locale prop override the LocaleProvider', () => {
+		renderUI(() => (
+			<LocaleProvider locale="zh">
+				<Pagination locale="en" page={2} totalPages={10} onPageChange={vi.fn()} />
+			</LocaleProvider>
+		))
 		expect(screen.getByRole('button', { name: 'Previous page' })).toBeInTheDocument()
 		expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument()
 	})

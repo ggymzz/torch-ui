@@ -6,6 +6,8 @@ import { TimeSelect } from './TimeSelect'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
@@ -79,6 +81,10 @@ export function TimePicker(props: TimePickerProps) {
 
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const contextSize = useComponentSize()
 
@@ -274,7 +280,7 @@ export function TimePicker(props: TimePickerProps) {
 
 					<Show when={!local.required && local.optional}>
 
-						<span class="text-xs text-ink-400">optional</span>
+						<span class="text-xs text-ink-400">{zh() ? '选填' : 'optional'}</span>
 
 					</Show>
 
@@ -334,7 +340,7 @@ export function TimePicker(props: TimePickerProps) {
 
 						<span class={cn('truncate', displayValue() ? 'text-ink-900' : 'text-ink-400')}>
 
-							{displayValue() || (local.placeholder ?? 'Select time')}
+							{displayValue() || (local.placeholder ?? (zh() ? '选择时间' : 'Select time'))}
 
 						</span>
 
@@ -350,7 +356,7 @@ export function TimePicker(props: TimePickerProps) {
 
 							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 
-							aria-label="Clear time"
+							aria-label={zh() ? '清除时间' : 'Clear time'}
 
 						>
 
@@ -372,7 +378,7 @@ export function TimePicker(props: TimePickerProps) {
 
 						role="dialog"
 
-						aria-label="Choose time"
+						aria-label={zh() ? '选择时间' : 'Choose time'}
 
 						class={cn(
 
@@ -436,7 +442,7 @@ export function TimePicker(props: TimePickerProps) {
 
 							<div class="mt-3 flex items-center justify-between border-t border-surface-border pt-3">
 
-								<div class="text-xs text-ink-400">{displayValue() || 'No time selected'}</div>
+								<div class="text-xs text-ink-400">{displayValue() || (zh() ? '未选择时间' : 'No time selected')}</div>
 
 								<div class="flex gap-2">
 
@@ -452,7 +458,7 @@ export function TimePicker(props: TimePickerProps) {
 
 										>
 
-											Clear
+											{zh() ? '清除' : 'Clear'}
 
 										</button>
 
@@ -468,7 +474,7 @@ export function TimePicker(props: TimePickerProps) {
 
 									>
 
-										Done
+										{zh() ? '完成' : 'Done'}
 
 									</button>
 

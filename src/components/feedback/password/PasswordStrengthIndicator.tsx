@@ -17,6 +17,7 @@
  */
 import { createMemo, createUniqueId, Show, splitProps } from 'solid-js'
 import { cn } from '../../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../../utilities/localeContext'
 import { Progress } from '../Progress'
 
 export type PasswordStrength = 'empty' | 'poor' | 'fair' | 'good' | 'excellent'
@@ -82,6 +83,8 @@ export function PasswordStrengthIndicator(props: PasswordStrengthIndicatorProps)
 		'title',
 		'segments'
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const helperId = `psi-helper-${createUniqueId()}`
 	const segmentCount = () => local.segments ?? 8
@@ -140,7 +143,7 @@ export function PasswordStrengthIndicator(props: PasswordStrengthIndicatorProps)
 				fillClass={colors().bg}
 				trackClass="bg-transparent"
 				showValueLabel={false}
-				aria-label={isEmpty() ? 'Password strength: not set' : `Password strength: ${cfg().label}`}
+				aria-label={isEmpty() ? (zh() ? '密码强度：未设置' : 'Password strength: not set') : (zh() ? `密码强度：${cfg().label}` : `Password strength: ${cfg().label}`)}
 				aria-describedby={local.showHelperText !== false ? helperId : undefined}
 			/>
 			<Show when={local.showHelperText !== false && helperText()}>

@@ -1,7 +1,7 @@
 import * as solid_js from 'solid-js';
 import { JSX, Accessor, Component } from 'solid-js';
 import { DropdownMenu as DropdownMenu$1, DropdownMenuTriggerProps as DropdownMenuTriggerProps$1, DropdownMenuContentProps as DropdownMenuContentProps$1, DropdownMenuItemProps as DropdownMenuItemProps$1, DropdownMenuSeparatorProps as DropdownMenuSeparatorProps$1 } from '@kobalte/core/dropdown-menu';
-export { P as Pagination, a as PaginationProps } from '../Pagination-BEI4IwQU.js';
+export { P as Pagination, a as PaginationProps } from '../Pagination-PJmlDCzJ.js';
 import { TabsRootProps, TabsContentProps as TabsContentProps$1, TabsListProps as TabsListProps$1, TabsTriggerProps as TabsTriggerProps$1 } from '@kobalte/core/tabs';
 export { Tabs as KobalteTabs } from '@kobalte/core/tabs';
 import { NavigationMenuMenuProps } from '@kobalte/core/navigation-menu';

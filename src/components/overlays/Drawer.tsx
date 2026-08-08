@@ -6,6 +6,8 @@ import { Button } from '../actions'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { useIcons } from '../../icons'
 
 
@@ -428,7 +430,9 @@ export function Drawer(props: DrawerProps) {
 
 	])
 
+	const contextLocale = useLocaleConfig()
 
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	onMount(ensureDrawerStyles)
 
@@ -609,7 +613,7 @@ export function Drawer(props: DrawerProps) {
 
 				>
 
-					{local.cancelLabel ?? 'Cancel'}
+					{local.cancelLabel ?? (zh() ? '取消' : 'Cancel')}
 
 				</KobalteDialog.CloseButton>
 
@@ -743,7 +747,7 @@ export function Drawer(props: DrawerProps) {
 
 							>
 
-								{local.cancelLabel ?? 'Cancel'}
+								{local.cancelLabel ?? (zh() ? '取消' : 'Cancel')}
 
 							</KobalteDialog.CloseButton>
 
@@ -763,7 +767,7 @@ export function Drawer(props: DrawerProps) {
 
 								<KobalteDialog.CloseButton
 
-									aria-label="Close"
+									aria-label={zh() ? '关闭' : 'Close'}
 
 									class="flex h-9 w-9 items-center justify-center rounded-full bg-surface-overlay text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 
@@ -796,7 +800,7 @@ export function Drawer(props: DrawerProps) {
 							</Show>
 							<Show when={canClose() && local.showCloseButton !== false}>
 								<KobalteDialog.CloseButton
-									aria-label="Close"
+									aria-label={zh() ? '关闭' : 'Close'}
 									class="flex h-8 w-8 items-center justify-center rounded-full text-ink-500 hover:bg-surface-dim hover:text-ink-700"
 									onClick={setCloseReason}
 								>

@@ -4,6 +4,8 @@ import { Popover as KobaltePopover } from '@kobalte/core/popover'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
@@ -93,6 +95,16 @@ const MONTH_NAMES = [
 	'January', 'February', 'March', 'April', 'May', 'June',
 
 	'July', 'August', 'September', 'October', 'November', 'December',
+
+]
+
+const ZH_DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六']
+
+const ZH_MONTH_NAMES = [
+
+	'一月', '二月', '三月', '四月', '五月', '六月',
+
+	'七月', '八月', '九月', '十月', '十一月', '十二月',
 
 ]
 
@@ -201,6 +213,10 @@ export function DatePicker(props: DatePickerProps) {
 	])
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const contextSize = useComponentSize()
 
@@ -584,7 +600,7 @@ export function DatePicker(props: DatePickerProps) {
 
 					<Show when={!local.required && local.optional}>
 
-						<span class="text-xs text-ink-400">optional</span>
+						<span class="text-xs text-ink-400">{zh() ? '选填' : 'optional'}</span>
 
 					</Show>
 
@@ -660,7 +676,7 @@ export function DatePicker(props: DatePickerProps) {
 
 						<span class={cn('truncate', displayValue() ? 'text-ink-900' : 'text-ink-400')}>
 
-							{displayValue() || (local.placeholder ?? 'Select date')}
+							{displayValue() || (local.placeholder ?? (zh() ? '选择日期' : 'Select date'))}
 
 						</span>
 
@@ -676,7 +692,7 @@ export function DatePicker(props: DatePickerProps) {
 
 							class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
 
-							aria-label="Clear date"
+							aria-label={zh() ? '清除日期' : 'Clear date'}
 
 						>
 
@@ -698,7 +714,7 @@ export function DatePicker(props: DatePickerProps) {
 
 					role="dialog"
 
-						aria-label="Choose date"
+						aria-label={zh() ? '选择日期' : 'Choose date'}
 
 						class={cn(
 
@@ -780,7 +796,7 @@ export function DatePicker(props: DatePickerProps) {
 
 											class={cn(navBtnSm, 'text-ink-500')}
 
-											aria-label="Back to calendar"
+											aria-label={zh() ? '返回日历' : 'Back to calendar'}
 
 										>
 
@@ -800,7 +816,7 @@ export function DatePicker(props: DatePickerProps) {
 
 											class={cn(navBtnSm, 'text-ink-500', !canGoPrevMonth() && 'opacity-30 pointer-events-none')}
 
-											aria-label="Previous month"
+											aria-label={zh() ? '上个月' : 'Previous month'}
 
 										>
 
@@ -828,7 +844,7 @@ export function DatePicker(props: DatePickerProps) {
 
 												>
 
-													{MONTH_NAMES[effectiveViewMonth()]}
+													{zh() ? ZH_MONTH_NAMES[effectiveViewMonth()] : MONTH_NAMES[effectiveViewMonth()]}
 
 												</button>
 
@@ -864,7 +880,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={cn(navBtnSm, 'text-ink-400', !canGoPrevYear() && 'opacity-30 pointer-events-none')}
 
-													aria-label="Previous year"
+													aria-label={zh() ? '上一年' : 'Previous year'}
 
 												>
 
@@ -896,7 +912,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={cn(navBtnSm, 'text-ink-400', !canGoNextYear() && 'opacity-30 pointer-events-none')}
 
-													aria-label="Next year"
+													aria-label={zh() ? '下一年' : 'Next year'}
 
 												>
 
@@ -910,7 +926,7 @@ export function DatePicker(props: DatePickerProps) {
 
 										{viewMode() === 'years' && (
 
-											<span class="text-sm font-semibold text-ink-900">Select year</span>
+											<span class="text-sm font-semibold text-ink-900">{zh() ? '选择年份' : 'Select year'}</span>
 
 										)}
 
@@ -934,7 +950,7 @@ export function DatePicker(props: DatePickerProps) {
 
 											class={cn(navBtnSm, 'text-ink-500', !canGoNextMonth() && 'opacity-30 pointer-events-none')}
 
-											aria-label="Next month"
+											aria-label={zh() ? '下个月' : 'Next month'}
 
 										>
 
@@ -958,9 +974,9 @@ export function DatePicker(props: DatePickerProps) {
 
 											<For each={DAY_NAMES}>
 
-												{(name) => (
+												{(name, i) => (
 
-													<div class="py-1 text-center text-xs font-medium text-ink-400">{name}</div>
+													<div class="py-1 text-center text-xs font-medium text-ink-400">{zh() ? ZH_DAY_NAMES[i()] : name}</div>
 
 												)}
 
@@ -1094,7 +1110,7 @@ export function DatePicker(props: DatePickerProps) {
 
 												>
 
-													{name}
+													{zh() ? ZH_MONTH_NAMES[m()] : name}
 
 												</button>
 
@@ -1172,7 +1188,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeBtnSm}
 
-													aria-label="Increment hour"
+													aria-label={zh() ? '增加小时' : 'Increment hour'}
 
 												>
 
@@ -1214,7 +1230,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeInputCls}
 
-													aria-label="Hour"
+													aria-label={zh() ? '小时' : 'Hour'}
 
 												/>
 
@@ -1226,7 +1242,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeBtnSm}
 
-													aria-label="Decrement hour"
+													aria-label={zh() ? '减少小时' : 'Decrement hour'}
 
 												>
 
@@ -1254,7 +1270,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeBtnSm}
 
-													aria-label="Increment minute"
+													aria-label={zh() ? '增加分钟' : 'Increment minute'}
 
 												>
 
@@ -1282,7 +1298,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeInputCls}
 
-													aria-label="Minute"
+													aria-label={zh() ? '分钟' : 'Minute'}
 
 												/>
 
@@ -1294,7 +1310,7 @@ export function DatePicker(props: DatePickerProps) {
 
 													class={timeBtnSm}
 
-													aria-label="Decrement minute"
+													aria-label={zh() ? '减少分钟' : 'Decrement minute'}
 
 												>
 
@@ -1338,7 +1354,7 @@ export function DatePicker(props: DatePickerProps) {
 
 								<div class="mt-3 flex items-center justify-between border-t border-surface-border pt-3">
 
-									<div class="text-xs text-ink-400">{displayValue() || 'No date selected'}</div>
+									<div class="text-xs text-ink-400">{displayValue() || (zh() ? '未选择日期' : 'No date selected')}</div>
 
 									<div class="flex gap-2">
 
@@ -1358,7 +1374,7 @@ export function DatePicker(props: DatePickerProps) {
 
 										>
 
-											Clear
+											{zh() ? '清除' : 'Clear'}
 
 										</button>
 
@@ -1386,7 +1402,7 @@ export function DatePicker(props: DatePickerProps) {
 
 											>
 
-												Today
+												{zh() ? '今天' : 'Today'}
 
 											</button>
 
@@ -1404,7 +1420,7 @@ export function DatePicker(props: DatePickerProps) {
 
 											>
 
-												Done
+												{zh() ? '完成' : 'Done'}
 
 											</button>
 

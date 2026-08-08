@@ -20,6 +20,8 @@ import { useIcons } from '../../icons'
 
 import { useComponentSize } from '../../utilities/componentSizeContext'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 
 
 const autocompleteStyles = `
@@ -236,6 +238,10 @@ export function Autocomplete(props: AutocompleteProps) {
 	])
 
 	const icons = useIcons()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const contextSize = useComponentSize()
 
@@ -510,7 +516,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 					class="flex-1 min-w-0 bg-transparent outline-none text-ink-900 placeholder:text-ink-400 disabled:cursor-not-allowed"
 
-					placeholder={local.placeholder || 'Search...'}
+					placeholder={local.placeholder || (zh() ? '搜索...' : 'Search...')}
 
 					disabled={local.disabled}
 
@@ -532,7 +538,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 							type="button"
 
-							aria-label="Clear"
+							aria-label={zh() ? '清除' : 'Clear'}
 
 							class={cn(
 
@@ -558,7 +564,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 						class="shrink-0 rounded p-0.5 text-ink-400 hover:bg-surface-overlay hover:text-ink-600"
 
-						aria-label="Open options"
+						aria-label={zh() ? '打开选项' : 'Open options'}
 
 					>
 

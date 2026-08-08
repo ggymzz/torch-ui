@@ -1,5 +1,6 @@
 import { useIcons } from '../../icons'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { WizardStep } from './WizardStep'
 import { VerticalWizard } from './VerticalWizard'
 export { VerticalWizard }
@@ -27,6 +28,8 @@ export { WizardStep }
 /** Reusable stepper: numbered steps with labels and connector. */
 export function WizardStepper(props: WizardStepperProps) {
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const orientation = () => props.orientation ?? 'horizontal'
 	const currentStep = () => props.step
 	const variant = () => props.variant ?? 'default'
@@ -51,7 +54,7 @@ export function WizardStepper(props: WizardStepperProps) {
 	)
 
 	return (
-		<nav class={cn('wizard-stepper', props.class)} aria-label="Progress">
+		<nav class={cn('wizard-stepper', props.class)} aria-label={zh() ? '进度' : 'Progress'}>
 			<ol class={cn('m-0 flex list-none items-center p-0', orientation() === 'vertical' && 'flex-col items-stretch gap-0')}>
 				{props.stepLabels.map((label, index) => {
 					const stepNum = index + 1

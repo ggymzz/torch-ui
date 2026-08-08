@@ -6,6 +6,8 @@ import { NumberField as KobalteNumberField } from '@kobalte/core/number-field'
 
 import { cn } from '../../utilities/classNames'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 
 import { useIcons } from '../../icons'
@@ -143,6 +145,10 @@ export function NumberField(props: NumberFieldProps) {
 	const icons = useIcons()
 
 	const contextSize = useComponentSize()
+
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const effectiveSize = () => local.size ?? contextSize ?? 'md'
 
@@ -284,7 +290,7 @@ export function NumberField(props: NumberFieldProps) {
 
 						{local.label && !local.required && local.optional && (
 
-							<span class="text-xs text-ink-500">optional</span>
+							<span class="text-xs text-ink-500">{zh() ? '选填' : 'optional'}</span>
 
 						)}
 
@@ -392,7 +398,7 @@ export function NumberField(props: NumberFieldProps) {
 
 							)}
 
-							aria-label="Decrease"
+							aria-label={zh() ? '减少' : 'Decrease'}
 
 						>
 
@@ -462,7 +468,7 @@ export function NumberField(props: NumberFieldProps) {
 
 							)}
 
-							aria-label="Increase"
+							aria-label={zh() ? '增加' : 'Increase'}
 
 						>
 

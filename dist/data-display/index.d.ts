@@ -2,7 +2,7 @@ import { JSX } from 'solid-js';
 export { T as TablePanel, a as TablePanelProps } from '../TablePanel-C7i99nvl.js';
 export { BubblePoint, Chart, ChartData, ChartDataset, ChartProps, ChartType, ScatterPoint, Sparkline, SparklineProps } from '../charts/index.js';
 import { a as InputProps } from '../Input-Dzvde_F6.js';
-import { a as PaginationProps } from '../Pagination-BEI4IwQU.js';
+import { a as PaginationProps } from '../Pagination-PJmlDCzJ.js';
 import 'chart.js';
 import '../component-size-BIaRRIRi.js';
 

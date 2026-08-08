@@ -1,6 +1,7 @@
 import { type JSX, Show, splitProps, onMount, createSignal, createEffect } from 'solid-js'
 import { AlertDialog as KobalteAlertDialog, type AlertDialogRootProps as KobalteAlertDialogRootProps } from '@kobalte/core/alert-dialog'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { Button } from '../actions'
 
 const DEFAULT_DURATION_MS = 200
@@ -79,6 +80,8 @@ export function AlertDialog(props: AlertDialogProps) {
 		'confirmLabel', 'cancelLabel', 'onConfirm',
 		'destructive', 'class', 'overlayClass',
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	onMount(ensureAlertStyles)
 
@@ -149,7 +152,7 @@ export function AlertDialog(props: AlertDialogProps) {
 							</Show>
 							<div class="mt-6 flex justify-end gap-3">
 								<KobalteAlertDialog.CloseButton as={Button} variant="outlined" size="sm">
-									{local.cancelLabel ?? 'Cancel'}
+									{local.cancelLabel ?? (zh() ? '取消' : 'Cancel')}
 								</KobalteAlertDialog.CloseButton>
 								<Button
 									variant={local.destructive ? 'danger' : 'primary'}
@@ -157,7 +160,7 @@ export function AlertDialog(props: AlertDialogProps) {
 									disabled={pending()}
 									onClick={handleConfirm}
 								>
-									{local.confirmLabel ?? 'Confirm'}
+									{local.confirmLabel ?? (zh() ? '确认' : 'Confirm')}
 								</Button>
 							</div>
 						</div>

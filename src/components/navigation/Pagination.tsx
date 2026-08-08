@@ -1,5 +1,6 @@
 import { type JSX, Show, For, splitProps, createEffect, on, createSignal, createUniqueId, onMount, onCleanup } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { Button } from '../actions'
 import { Select } from '../forms'
 import { useIcons } from '../../icons'
@@ -82,7 +83,7 @@ export interface PaginationProps extends JSX.HTMLAttributes<HTMLElement> {
 	pageSizeOptions?: number[]
 	/** Optional id for the per-page select wrapper (for label association / testing). */
 	selectId?: string
-	/** Locale for built-in labels. Default: "en". */
+	/** Locale for built-in labels. Default: "en". When omitted, falls back to the nearest `LocaleProvider` locale. */
 	locale?: PaginationLocale
 	/** Override any built-in label. Merged on top of locale defaults. */
 	labels?: PaginationLabels
@@ -109,11 +110,12 @@ export function Pagination(props: PaginationProps) {
 		'selectId', 'locale', 'labels', 'class',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
 
 	/** Merged labels: locale defaults overridden by explicit `labels` prop. */
 	const t = (): Required<PaginationLabels> => ({
 		...EN_LABELS,
-		...(local.locale === 'zh' ? ZH_LABELS : {}),
+		...(resolveLocale(local.locale, contextLocale) === 'zh' ? ZH_LABELS : {}),
 		...(local.labels ?? {}),
 	})
 

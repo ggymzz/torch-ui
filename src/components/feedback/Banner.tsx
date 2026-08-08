@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps, Show, createSignal, onCleanup } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 export type BannerStatus = 'primary' | 'info' | 'success' | 'warning' | 'error'
@@ -66,6 +67,8 @@ export function Banner(props: BannerProps): JSX.Element {
 		'class',
 		'children',
 	])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	if (import.meta.env.DEV && local.closeable && !local.onClose) {
 		console.warn('Banner: closeable is true but onClose is not provided.')
@@ -110,7 +113,7 @@ export function Banner(props: BannerProps): JSX.Element {
 						type="button"
 						onClick={handleClose}
 						class="ml-auto shrink-0 rounded p-1 opacity-70 hover:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-inset"
-						aria-label="Dismiss"
+						aria-label={zh() ? '关闭' : 'Dismiss'}
 					>
 						{icons.close({ class: 'size-4', 'aria-hidden': 'true' })}
 					</button>

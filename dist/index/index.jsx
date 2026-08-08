@@ -1,7 +1,7 @@
 import {
   Code,
   Icon
-} from "../chunk/DZOT5R3L.jsx";
+} from "../chunk/CO4EISCK.jsx";
 import "../chunk/ZY3LMGHF.jsx";
 import {
   AvatarGroup,
@@ -29,7 +29,7 @@ import {
   Timeline,
   TreeView,
   Video
-} from "../chunk/KAAO3DNZ.jsx";
+} from "../chunk/UN7KVZVH.jsx";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -48,7 +48,7 @@ import {
   HoverCardSeparator,
   HoverCardTrigger,
   SearchPalette
-} from "../chunk/LNXL5YYT.jsx";
+} from "../chunk/2AQ2XW3Q.jsx";
 import {
   Chart,
   Sparkline
@@ -67,7 +67,7 @@ import {
   isPasswordWeak,
   useToast,
   validatePassword
-} from "../chunk/P3667DII.jsx";
+} from "../chunk/JI5HRJL6.jsx";
 import {
   Breadcrumbs,
   DropdownMenu,
@@ -106,7 +106,7 @@ import {
   TabsList,
   TabsTrigger,
   ViewSwitcher
-} from "../chunk/NJPSM7PJ.jsx";
+} from "../chunk/JOWKBCLA.jsx";
 import {
   AccordionContent,
   AccordionContentStyled,
@@ -152,6 +152,7 @@ import {
   Inline,
   Input,
   Link,
+  LocaleProvider,
   MultiSelect,
   NumberField,
   PageHeading,
@@ -192,10 +193,12 @@ import {
   defaultIcons,
   inputSizeConfig,
   mergeRefs,
+  resolveLocale,
   useComponentSize,
   useCopyToClipboard,
-  useIcons
-} from "../chunk/ZFKQFTHG.jsx";
+  useIcons,
+  useLocaleConfig
+} from "../chunk/7WUK277F.jsx";
 import {
   cn
 } from "../chunk/N5KQYWCA.jsx";
@@ -297,6 +300,7 @@ export {
   KobalteTabs,
   Link,
   Loading,
+  LocaleProvider,
   MegaMenu,
   MegaMenuBar,
   MegaMenuBarLink,
@@ -393,11 +397,13 @@ export {
   inputSizeConfig,
   isPasswordWeak,
   mergeRefs,
+  resolveLocale,
   useAppLocale,
   useComponentSize,
   useCopyToClipboard,
   useComponentSize as useFormSize,
   useIcons,
+  useLocaleConfig,
   useToast,
   validatePassword
 };

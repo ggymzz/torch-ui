@@ -3,6 +3,7 @@ import { Copy } from '../actions'
 import { CollapsibleRoot, CollapsibleTrigger, CollapsibleContentStyled } from './Collapsible'
 import { PopoverRoot, PopoverTrigger, PopoverContent } from '../overlays/Popover'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 export interface CodeBlockLanguage {
@@ -105,6 +106,8 @@ const CODE_BLOCK_PROP_KEYS = [
 export function CodeBlock(props: CodeBlockProps) {
 	const [local, others] = splitProps(props, [...CODE_BLOCK_PROP_KEYS])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const primary = () => local.primary === true
 	/** Follow app theme when not forcing dark. */
 	const themeAuto = () => !primary() && local.dark !== true
@@ -270,7 +273,7 @@ export function CodeBlock(props: CodeBlockProps) {
 								<PopoverTrigger
 									as="button"
 									type="button"
-									aria-label="Language"
+									aria-label={zh() ? '语言' : 'Language'}
 									class={cn(
 										'h-7 min-w-0 flex items-center gap-1.5 rounded border text-xs font-medium overflow-hidden cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
 										primary()
@@ -302,7 +305,7 @@ export function CodeBlock(props: CodeBlockProps) {
 											: 'bg-surface-raised border-surface-border'
 									)}
 								>
-									<div class="flex flex-col" role="menu" aria-label="Language">
+									<div class="flex flex-col" role="menu" aria-label={zh() ? '语言' : 'Language'}>
 										<For each={local.languages ?? []}>
 											{(item, idx) => (
 												<button
@@ -357,7 +360,7 @@ export function CodeBlock(props: CodeBlockProps) {
 												: 'text-ink-600 hover:bg-surface-overlay hover:text-ink-900'
 								)}
 							>
-								{showAlternate() ? 'Full code' : 'Component only'}
+								{showAlternate() ? (zh() ? '完整代码' : 'Full code') : (zh() ? '仅组件' : 'Component only')}
 							</button>
 						</Show>
 						<Copy
@@ -470,12 +473,12 @@ export function CodeBlock(props: CodeBlockProps) {
 						{codeOpen() ? (
 							<>
 								{icons.chevronUp({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								{local.collapsibleLabelHide ?? 'Hide code'}
+								{local.collapsibleLabelHide ?? (zh() ? '隐藏代码' : 'Hide code')}
 							</>
 						) : (
 							<>
 								{icons.chevronDown({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
-								{local.collapsibleLabelShow ?? 'Show code'}
+								{local.collapsibleLabelShow ?? (zh() ? '显示代码' : 'Show code')}
 							</>
 						)}
 					</CollapsibleTrigger>

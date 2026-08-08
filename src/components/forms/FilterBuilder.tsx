@@ -4,6 +4,7 @@ import { Input } from './Input'
 import { Button } from '../actions/Button'
 import { useIcons } from '../../icons'
 import { createSortableDrag } from '../../utilities/createSortableDrag'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,8 @@ interface RuleRowProps {
 
 function RuleRow(props: RuleRowProps) {
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const field = () => props.fields.find((f) => f.id === props.rule.fieldId)
 	const operators = () => props.getOperators(field())
 	const needsValue = () => !['is_empty', 'is_not_empty'].includes(props.rule.operator)
@@ -181,7 +184,7 @@ function RuleRow(props: RuleRowProps) {
 			<button
 				type="button"
 				class={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded text-ink-400 hover:bg-surface-overlay touch-none self-center ${props.isDraggingActive ? 'cursor-grabbing' : 'cursor-grab'}`}
-				aria-label="Drag to reorder"
+				aria-label={zh() ? '拖动排序' : 'Drag to reorder'}
 				onPointerDown={(e) => props.onDragHandle(e)}
 			>
 				{icons.dragHandle({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
@@ -189,7 +192,7 @@ function RuleRow(props: RuleRowProps) {
 			<div class="flex min-w-0 flex-1 flex-wrap items-end gap-2">
 				<div class="min-w-[140px] flex-1">
 					<Select
-						label="Field"
+						label={zh() ? '字段' : 'Field'}
 						size="sm"
 						options={props.fields.map((f) => ({ value: f.id, label: f.label }))}
 						value={props.rule.fieldId}
@@ -198,12 +201,12 @@ function RuleRow(props: RuleRowProps) {
 							const ops = props.getOperators(newField)
 							props.onRuleChange({ fieldId: v, operator: ops[0]?.value ?? 'equals', value: '' })
 						}}
-						placeholder="Select field…"
+						placeholder={zh() ? '请选择字段…' : 'Select field…'}
 					/>
 				</div>
 				<div class="min-w-[140px] flex-1">
 					<Select
-						label="Operator"
+						label={zh() ? '运算符' : 'Operator'}
 						size="sm"
 						options={operators()}
 						value={props.rule.operator}
@@ -217,22 +220,22 @@ function RuleRow(props: RuleRowProps) {
 							fallback={
 								<div onFocusOut={() => props.onRuleChange({ value: localText() })}>
 									<Input
-										label="Value"
+										label={zh() ? '值' : 'Value'}
 										size="sm"
 										value={localText()}
 										onValueChange={setLocalText}
-										placeholder="Enter value…"
+										placeholder={zh() ? '请输入值…' : 'Enter value…'}
 									/>
 								</div>
 							}
 						>
 							<Select
-								label="Value"
+								label={zh() ? '值' : 'Value'}
 								size="sm"
 								options={field()?.options ?? []}
 								value={props.rule.value}
 								onValueChange={(v) => props.onRuleChange({ value: v })}
-								placeholder="Select value…"
+								placeholder={zh() ? '请选择值…' : 'Select value…'}
 							/>
 						</Show>
 					</div>
@@ -242,7 +245,7 @@ function RuleRow(props: RuleRowProps) {
 				type="button"
 				onClick={props.onRemove}
 				class="mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-surface-overlay hover:text-ink-700"
-				aria-label="Remove condition"
+				aria-label={zh() ? '删除条件' : 'Remove condition'}
 			>
 				{icons.close({ class: 'h-4 w-4', 'aria-hidden': 'true' })}
 			</button>
@@ -277,6 +280,8 @@ interface GroupBlockProps {
 
 function FilterGroupBlock(props: GroupBlockProps) {
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const hasItems = () => props.group.items.length > 0
 	const showLogic = () => props.group.items.length > 1
 
@@ -332,17 +337,17 @@ function FilterGroupBlock(props: GroupBlockProps) {
 					<button
 						type="button"
 						class={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-ink-400 hover:bg-surface-overlay touch-none ${drag.isDragging() ? 'cursor-grabbing' : 'cursor-grab'}`}
-						aria-label="Drag group"
+						aria-label={zh() ? '拖动分组' : 'Drag group'}
 						onPointerDown={(e) => props.onDragHandle?.(e)}
 					>
 						{icons.dragHandle({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 					</button>
-					<span class="flex-1 text-xs font-medium text-ink-500 uppercase tracking-wide">Group</span>
+					<span class="flex-1 text-xs font-medium text-ink-500 uppercase tracking-wide">{zh() ? '分组' : 'Group'}</span>
 					<button
 						type="button"
 						onClick={props.onRemoveSelf}
 						class="inline-flex h-6 w-6 items-center justify-center rounded text-ink-400 hover:bg-surface-overlay hover:text-ink-700"
-						aria-label="Remove group"
+						aria-label={zh() ? '删除分组' : 'Remove group'}
 					>
 						{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 					</button>
@@ -351,16 +356,16 @@ function FilterGroupBlock(props: GroupBlockProps) {
 
 			<Show when={showLogic()}>
 				<div class="flex items-center gap-2">
-					<span class="text-sm text-ink-500">Match</span>
+					<span class="text-sm text-ink-500">{zh() ? '匹配' : 'Match'}</span>
 					<button
 						type="button"
 						onClick={toggleLogic}
 						class="inline-flex items-center gap-1.5 rounded-lg border border-surface-border bg-surface-raised px-3 py-1.5 text-sm font-medium text-ink-700 hover:bg-surface-overlay"
 					>
-						{props.group.logic === 'and' ? 'All' : 'Any'}
+						{props.group.logic === 'and' ? (zh() ? '全部' : 'All') : (zh() ? '任一' : 'Any')}
 						{icons.refresh({ class: 'h-3 w-3 text-ink-400', 'aria-hidden': 'true' })}
 					</button>
-					<span class="text-sm text-ink-500">of the following</span>
+					<span class="text-sm text-ink-500">{zh() ? '下列条件' : 'of the following'}</span>
 				</div>
 			</Show>
 
@@ -432,7 +437,7 @@ function FilterGroupBlock(props: GroupBlockProps) {
 						setDropHover(false)
 					}}
 				>
-					Drop into this group
+					{zh() ? '拖入此分组' : 'Drop into this group'}
 				</div>
 			</Show>
 
@@ -443,7 +448,9 @@ function FilterGroupBlock(props: GroupBlockProps) {
 						const item = found()
 						if (!item) return ''
 						if (item.type === 'rule') return props.fields.find((f) => f.id === item.fieldId)?.label ?? item.fieldId
-						return `Group (${item.items.length} condition${item.items.length !== 1 ? 's' : ''})`
+						return zh()
+							? `分组（${item.items.length} 条条件）`
+							: `Group (${item.items.length} condition${item.items.length !== 1 ? 's' : ''})`
 					}
 					return (
 						<Show when={found()}>
@@ -457,17 +464,17 @@ function FilterGroupBlock(props: GroupBlockProps) {
 				when={hasItems()}
 				fallback={
 					<div class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-surface-border py-8 text-center">
-						<p class="text-sm text-ink-500">No filters applied. All records are shown.</p>
+						<p class="text-sm text-ink-500">{zh() ? '未应用筛选条件，显示所有记录。' : 'No filters applied. All records are shown.'}</p>
 						<div class="flex items-center gap-2">
-							<Button variant="outlined" size="sm" icon={icons.plus({ class: 'h-4 w-4' })} onClick={addRule}>Add condition</Button>
-							<Button variant="outlined" size="sm" icon={<LayersIcon class="h-4 w-4" />} onClick={addSubGroup}>Add group</Button>
+							<Button variant="outlined" size="sm" icon={icons.plus({ class: 'h-4 w-4' })} onClick={addRule}>{zh() ? '添加条件' : 'Add condition'}</Button>
+							<Button variant="outlined" size="sm" icon={<LayersIcon class="h-4 w-4" />} onClick={addSubGroup}>{zh() ? '添加分组' : 'Add group'}</Button>
 						</div>
 					</div>
 				}
 			>
 				<div class="flex items-center gap-2 pt-1">
-					<Button variant="ghost" size="sm" icon={icons.plus({ class: 'h-4 w-4' })} onClick={addRule}>Add condition</Button>
-					<Button variant="ghost" size="sm" icon={<LayersIcon class="h-4 w-4" />} onClick={addSubGroup}>Add group</Button>
+					<Button variant="ghost" size="sm" icon={icons.plus({ class: 'h-4 w-4' })} onClick={addRule}>{zh() ? '添加条件' : 'Add condition'}</Button>
+					<Button variant="ghost" size="sm" icon={<LayersIcon class="h-4 w-4" />} onClick={addSubGroup}>{zh() ? '添加分组' : 'Add group'}</Button>
 				</div>
 			</Show>
 		</div>

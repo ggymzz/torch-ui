@@ -1,5 +1,6 @@
 import { type JSX, Show, splitProps } from 'solid-js'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 import {
 	SkeletonCard,
@@ -45,6 +46,8 @@ export function Loading(props: LoadingProps) {
 		'aria-label',
 	])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const variant = () => local.variant ?? 'spinner'
 	if (variant() === 'spinner') {
@@ -64,7 +67,7 @@ export function Loading(props: LoadingProps) {
 			icons.spinner({ class: cn('shrink-0 animate-spin text-ink-400', sizeClasses()), 'aria-hidden': 'true' })
 		)
 		const resolvedIcon = () => local.icon ?? defaultIcon()
-		const label = () => local['aria-label'] ?? (iconOnly() ? (local.message ?? 'Loading') : undefined)
+		const label = () => local['aria-label'] ?? (iconOnly() ? (local.message ?? (zh() ? '加载中' : 'Loading')) : undefined)
 		return (
 			<div
 				{...others}
@@ -80,7 +83,7 @@ export function Loading(props: LoadingProps) {
 						class="text-sm text-ink-500"
 						aria-hidden={local['aria-label'] ? 'true' : undefined}
 					>
-						{local.message ?? 'Loading…'}
+						{local.message ?? (zh() ? '加载中…' : 'Loading…')}
 					</span>
 				</Show>
 			</div>
@@ -89,7 +92,7 @@ export function Loading(props: LoadingProps) {
 
 	// Skeleton layout: composed from SkeletonBlocks that map to Card, Table, Section, etc.
 	return (
-		<div {...others} class={cn(local.class)} role="status" aria-live="polite" aria-atomic="true" aria-label="Loading">
+		<div {...others} class={cn(local.class)} role="status" aria-live="polite" aria-atomic="true" aria-label={zh() ? '加载中' : 'Loading'}>
 			{variant() === 'dashboard' ? (
 				<DashboardSkeletonLayout />
 			) : variant() === 'tablePage' ? (

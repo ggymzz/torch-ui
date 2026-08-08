@@ -4,6 +4,7 @@ import type { ButtonVariant } from './Button'
 import { type ComponentSize } from '../../types/component-size'
 import { useCopyToClipboard } from './useCopyToClipboard'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 
 export type CopyDisplay = 'text' | 'icon-and-text' | 'icon-only'
@@ -35,6 +36,8 @@ export interface CopyProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonEleme
 export function Copy(props: CopyProps) {
 	const [copy, copied] = useCopyToClipboard()
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const [local, rest] = splitProps(props, [
 		'text',
 		'display',
@@ -51,8 +54,8 @@ export function Copy(props: CopyProps) {
 	}
 
 	const display = () => local.display ?? 'icon-and-text'
-	const label = () => local.label ?? 'Copy'
-	const copiedLabel = () => local.copiedLabel ?? 'Copied'
+	const label = () => local.label ?? (zh() ? '复制' : 'Copy')
+	const copiedLabel = () => local.copiedLabel ?? (zh() ? '已复制' : 'Copied')
 	const isIconOnly = () => display() === 'icon-only'
 	const showIcon = () => display() === 'icon-and-text' || display() === 'icon-only'
 

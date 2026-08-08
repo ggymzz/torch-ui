@@ -1,6 +1,7 @@
 import { createSignal, createContext, useContext, onCleanup, For, Show, splitProps, onMount, createEffect, type JSX } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 import { Button } from '../actions'
 
@@ -65,6 +66,8 @@ export interface ToastProviderProps {
 
 export function ToastProvider(props: ToastProviderProps) {
 	const [local] = splitProps(props, ['children', 'position', 'defaultAppearance', 'hotkey', 'maxToasts'])
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const [toasts, setToasts] = createSignal<ToastItem[]>([])
 	const timers = new Map<string, TimerEntry>()
@@ -203,7 +206,7 @@ export function ToastProvider(props: ToastProviderProps) {
 						position() === 'bottom-right' && 'right-4 bottom-4'
 					)}
 					role="region"
-					aria-label="Notifications"
+					aria-label={zh() ? '通知' : 'Notifications'}
 				>
 					<For each={toasts()}>
 						{(t) => (
@@ -248,6 +251,8 @@ const variantIconMap: Partial<Record<ToastVariant, keyof import('../../icons').T
 function ToastItemView(props: { toast: ToastItem; onDismiss: () => void; onPause: () => void; onResume: () => void; timers: Map<string, TimerEntry> }) {
 	const [local, rest] = splitProps(props, ['toast', 'onDismiss', 'onPause', 'onResume'])
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const t = () => local.toast
 	const variant = () => t().variant ?? 'default'
@@ -337,7 +342,7 @@ function ToastItemView(props: { toast: ToastItem; onDismiss: () => void; onPause
 				</Show>
 				<button
 					type="button"
-					aria-label="Dismiss"
+					aria-label={zh() ? '关闭' : 'Dismiss'}
 					onClick={local.onDismiss}
 					class="shrink-0 rounded p-0.5 opacity-60 hover:opacity-100 hover:bg-current/10 active:bg-current/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 transition-opacity"
 				>
@@ -353,7 +358,7 @@ function ToastItemView(props: { toast: ToastItem; onDismiss: () => void; onPause
 						aria-valuenow={progress()}
 						aria-valuemin={0}
 						aria-valuemax={100}
-						aria-label="Time remaining"
+						aria-label={zh() ? '剩余时间' : 'Time remaining'}
 					/>
 				</div>
 			</Show>

@@ -1,6 +1,7 @@
 import { type JSX, splitProps, Show, createSignal } from 'solid-js'
 import { TextField as KobalteTextField } from '@kobalte/core/text-field'
 import { cn } from '../../utilities/classNames'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { type ComponentSize, inputSizeConfig } from '../../types/component-size'
 import { useIcons } from '../../icons'
 import { useComponentSize } from '../../utilities/componentSizeContext'
@@ -69,6 +70,8 @@ export function Input(props: InputProps) {
 	])
 	const icons = useIcons()
 	const contextSize = useComponentSize()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 
 	const hasError = () => !!local.error
 	const sc = () => inputSizeConfig[local.size ?? contextSize ?? 'md']
@@ -130,7 +133,7 @@ export function Input(props: InputProps) {
 					<div class="flex items-center gap-2 flex-shrink-0">
 						<Show when={local.labelTrailing}>{local.labelTrailing}</Show>
 						<Show when={local.label && !local.required && local.optional}>
-							<span class="text-xs text-ink-500">optional</span>
+							<span class="text-xs text-ink-500">{zh() ? '选填' : 'optional'}</span>
 						</Show>
 					</div>
 				</div>
@@ -208,7 +211,7 @@ export function Input(props: InputProps) {
 								'absolute top-1/2 -translate-y-1/2 flex items-center justify-center rounded p-1 z-10 text-ink-500 hover:text-ink-700 hover:bg-surface-overlay',
 								sc().adornEnd, sc().text
 							)}
-							aria-label={showPassword() ? 'Hide password' : 'Show password'}
+							aria-label={showPassword() ? (zh() ? '隐藏密码' : 'Hide password') : (zh() ? '显示密码' : 'Show password')}
 						>
 							{showPassword()
 								? icons.eyeOff({ class: 'h-4 w-4', 'aria-hidden': 'true' })

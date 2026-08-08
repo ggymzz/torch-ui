@@ -2,6 +2,7 @@ import { createMemo, createSignal, createEffect, For, Show, onCleanup } from 'so
 import { Portal } from 'solid-js/web'
 import { Input } from '../forms/Input'
 import { Button } from '../actions/Button'
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
 import { useIcons } from '../../icons'
 import { createSortableDrag } from '../../utilities/createSortableDrag'
 
@@ -27,6 +28,8 @@ export interface ViewCustomizerProps {
 
 export function ViewCustomizer(props: ViewCustomizerProps) {
 	const icons = useIcons()
+	const contextLocale = useLocaleConfig()
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
 	const [addOpen, setAddOpen] = createSignal(false)
 	const [dropdownPos, setDropdownPos] = createSignal<{ top: number; left: number; width: number } | null>(null)
 	let addButtonRef: HTMLButtonElement | undefined
@@ -78,16 +81,16 @@ export function ViewCustomizer(props: ViewCustomizerProps) {
 	return (
 		<div class="flex flex-col gap-6">
 			<Input
-				label="View name"
+				label={zh() ? '视图名称' : 'View name'}
 				value={props.viewName}
 				onValueChange={props.onViewNameChange}
-				placeholder="e.g. My Custom View"
+				placeholder={zh() ? '例如：我的自定义视图' : 'e.g. My Custom View'}
 			/>
 
 			<div>
 				<div class="mb-2 flex items-center justify-between">
-					<p class="text-sm font-medium text-ink-900">Columns</p>
-					<p class="text-xs text-ink-500">{props.columns.length} column{props.columns.length !== 1 ? 's' : ''}</p>
+					<p class="text-sm font-medium text-ink-900">{zh() ? '列' : 'Columns'}</p>
+					<p class="text-xs text-ink-500">{props.columns.length}{zh() ? ' 列' : ` column${props.columns.length !== 1 ? 's' : ''}`}</p>
 				</div>
 				<div data-sortable-container class="divide-y divide-surface-border rounded-lg border border-surface-border overflow-hidden">
 					<For each={props.columns}>
@@ -106,7 +109,7 @@ export function ViewCustomizer(props: ViewCustomizerProps) {
 									<button
 										type="button"
 										class={`shrink-0 rounded p-1 text-ink-400 hover:bg-surface-overlay touch-none ${drag.isDragging() ? 'cursor-grabbing' : 'cursor-grab'}`}
-										aria-label={`Drag ${col.label}`}
+										aria-label={zh() ? `拖动 ${col.label}` : `Drag ${col.label}`}
 										onPointerDown={(e) => {
 											pointerX = e.clientX
 											pointerY = e.clientY
@@ -119,14 +122,14 @@ export function ViewCustomizer(props: ViewCustomizerProps) {
 									</button>
 									<span class="flex-1 text-sm font-medium text-ink-900">{col.label}</span>
 									<Show when={col.required}>
-										<span class="shrink-0 text-xs text-ink-400">Required</span>
+										<span class="shrink-0 text-xs text-ink-400">{zh() ? '必填' : 'Required'}</span>
 									</Show>
 									<Show when={!col.required}>
 										<button
 											type="button"
 											onClick={() => removeColumn(col.id)}
 											class="shrink-0 rounded p-1 text-ink-400 hover:bg-surface-overlay hover:text-ink-700"
-											aria-label={`Remove ${col.label}`}
+											aria-label={zh() ? `移除 ${col.label}` : `Remove ${col.label}`}
 										>
 											{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
 										</button>
@@ -186,7 +189,7 @@ export function ViewCustomizer(props: ViewCustomizerProps) {
 							onClick={() => setAddOpen((v) => !v)}
 							class="flex w-full items-center gap-1.5 rounded-lg border border-dashed border-surface-border px-3 py-2 text-sm text-ink-500 hover:border-primary-400 hover:text-primary-600"
 						>
-							<span class="text-base leading-none">+</span> Add column
+							<span class="text-base leading-none">+</span> {zh() ? '添加列' : 'Add column'}
 						</button>
 						<Show when={dropdownPos()}>
 							{(pos) => (
@@ -222,10 +225,10 @@ export function ViewCustomizer(props: ViewCustomizerProps) {
 
 			<div class="flex justify-end gap-2 border-t border-surface-border pt-4">
 				<Button variant="outlined" onClick={props.onCancel}>
-					{props.cancelLabel ?? 'Cancel'}
+					{props.cancelLabel ?? (zh() ? '取消' : 'Cancel')}
 				</Button>
 				<Button variant="primary" onClick={props.onSave}>
-					{props.saveLabel ?? 'Save view'}
+					{props.saveLabel ?? (zh() ? '保存视图' : 'Save view')}
 				</Button>
 			</div>
 		</div>

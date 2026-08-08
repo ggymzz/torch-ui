@@ -6,6 +6,8 @@ import { cn } from '../../utilities/classNames'
 
 import { mergeRefs } from '../../utilities/mergeRefs'
 
+import { useLocaleConfig, resolveLocale } from '../../utilities/localeContext'
+
 import { Progress } from '../feedback/Progress'
 
 import { Dialog } from '../overlays/Dialog'
@@ -318,6 +320,69 @@ const DEFAULT_LABELS: Required<FileUploadLabels> = {
 
 }
 
+/** Simplified Chinese built-in labels. Active when `resolveLocale(...) === 'zh'`. */
+const ZH_LABELS: Required<FileUploadLabels> = {
+
+	dropzonePrompt: '选择文件或将文件拖拽到此处',
+
+	dropzoneDragTitle: '将文件拖到这里',
+
+	dropzoneDragSubtitle: '或点击下方浏览按钮',
+
+	dropzoneBrowseButton: '浏览',
+
+	browseFilesButton: '浏览文件',
+
+	ariaChooseFile: '选择文件',
+
+	ariaChooseFiles: '选择文件',
+
+	ariaBrowseFiles: '浏览文件',
+
+	ariaFileUpload: '文件上传',
+
+	ariaViewFiles: '查看文件',
+
+	ariaUploadedFiles: '已上传文件',
+
+	ariaRetry: (name) => `重试 ${name}`,
+
+	ariaRemove: (name) => `移除 ${name}`,
+
+	ariaProgress: (name) => `${name} 的上传进度`,
+
+	statusDone: '已上传',
+
+	statusPending: '等待中',
+
+	statusFailed: '失败',
+
+	statusUploading: '…',
+
+	summaryUploading: (n) => `正在上传 ${n} 个…`,
+
+	summaryDone: (n) => n === 1 ? '已上传 1 个文件' : `已上传 ${n} 个文件`,
+
+	summaryFailed: (done, failed) => `已上传 ${done} 个，失败 ${failed} 个`,
+
+	limitsMaxSize: (size) => `最大 ${size}`,
+
+	limitsOneFile: '1 个文件',
+
+	limitsMaxFiles: (n) => `最多 ${n} 个文件`,
+
+	errorMaxOneFile: '最多允许 1 个文件。',
+
+	errorMaxFiles: (n) => `最多允许 ${n} 个文件。`,
+
+	errorOverLimit: (skipped, limitLabel) => `未添加 ${skipped} 个文件：已达${limitLabel}上限。`,
+
+	errorTooLarge: (name, maxSize) => `${name}：超过 ${maxSize}。`,
+
+	errorBadType: (name) => `${name}：文件类型不受支持。`,
+
+}
+
 
 
 const CODE_EXT = new Set(['txt', 'js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs', 'json', 'html', 'htm', 'css', 'scss', 'sass', 'less', 'md', 'xml', 'yml', 'yaml', 'sh', 'bash', 'py', 'rb', 'php', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'go', 'rs', 'vue', 'svelte'])
@@ -514,7 +579,11 @@ export function FileUpload(props: FileUploadProps) {
 
 	const icons = useIcons()
 
-	const l = () => ({ ...DEFAULT_LABELS, ...local.labels })
+	const contextLocale = useLocaleConfig()
+
+	const zh = () => resolveLocale(undefined, contextLocale) === 'zh'
+
+	const l = () => ({ ...DEFAULT_LABELS, ...(resolveLocale(undefined, contextLocale) === 'zh' ? ZH_LABELS : {}), ...local.labels })
 
 
 
@@ -1094,7 +1163,9 @@ export function FileUpload(props: FileUploadProps) {
 
 											<span class="min-w-0 flex-1 text-sm text-ink-900">
 
-												{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
+												{local.files.length === 1
+													? (zh() ? '1 个文件' : '1 file')
+													: (zh() ? `${local.files.length} 个文件` : `${local.files.length} files`)}
 
 											</span>
 
@@ -1168,8 +1239,9 @@ export function FileUpload(props: FileUploadProps) {
 
 						<p class="mb-3 text-sm text-ink-500">
 
-							{local.files.length === 1 ? '1 file' : `${local.files.length} files`}
-
+							{local.files.length === 1
+								? (zh() ? '1 个文件' : '1 file')
+								: (zh() ? `${local.files.length} 个文件` : `${local.files.length} files`)}
 						</p>
 
 						<ul class="space-y-2" aria-label={l().ariaUploadedFiles}>
