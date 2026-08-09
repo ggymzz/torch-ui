@@ -470,7 +470,7 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				<Show when={!local.bare && local.label}>
 
-					<div class="flex items-center justify-between mb-2">
+					<div class="flex items-center justify-between mb-1.5">
 
 						<KobalteCombobox.Label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 

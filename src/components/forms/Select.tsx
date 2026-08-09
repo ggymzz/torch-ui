@@ -379,7 +379,7 @@ export const Select = (props: SelectProps) => {
 	const renderInner = () => <>
 		<Show when={!local.bare && local.label}>
 
-			<div class="flex items-center justify-between mb-2">
+			<div class="flex items-center justify-between mb-1.5">
 
 				<KobalteSelect.Label class={cn('block text-sm font-medium', hasError() ? 'text-danger-600' : 'text-ink-700')}>
 
