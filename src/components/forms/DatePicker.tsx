@@ -228,6 +228,10 @@ export function DatePicker(props: DatePickerProps) {
 
 	const inputId = () => local.id || `datepicker-${generatedId}`
 
+	const hourInputId = createUniqueId()
+
+	const minuteInputId = createUniqueId()
+
 	const [open, setOpen] = createSignal(false)
 
 
@@ -256,9 +260,13 @@ export function DatePicker(props: DatePickerProps) {
 
 
 
-	const minDate = () => (local.min ? parseDate(local.min) : null)
+	// Read min/max props eagerly inside the render root: Solid compiles reactive prop
+	// expressions into lazily-memoized getters. If the first access happens inside an
+	// event handler (e.g. onOpenChange), the memo is created outside a `createRoot`/`render`,
+	// producing the warning "computations created outside a createRoot or render" plus a leak.
+	const minDate = createMemo(() => (local.min ? parseDate(local.min) : null))
 
-	const maxDate = () => (local.max ? parseDate(local.max) : null)
+	const maxDate = createMemo(() => (local.max ? parseDate(local.max) : null))
 
 
 
@@ -1200,6 +1208,10 @@ export function DatePicker(props: DatePickerProps) {
 
 													type="text"
 
+													id={hourInputId}
+
+													name="hour"
+
 													inputmode="numeric"
 
 													value={timeHourDisplay()}
@@ -1281,6 +1293,10 @@ export function DatePicker(props: DatePickerProps) {
 												<input
 
 													type="text"
+
+													id={minuteInputId}
+
+													name="minute"
 
 													inputmode="numeric"
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`Select`**: new `clearable` prop — when set and a value is selected, a clear (×) button appears in the trigger that resets the value back to the placeholder (fires `onValueChange('')`).
 
 ### Fixed
+- **`DatePicker`**: `min`/`max`/`value` props are now read eagerly inside the render root via `createMemo`. Solid lazily memoizes reactive prop getters, and the previous first access happened inside the `onOpenChange` event handler (outside `createRoot`), producing the dev warning "computations created outside a `createRoot` or `render` will never be disposed" and leaking the memo. This also fixes the same warning on any page passing reactive `min`/`max` (e.g. combo bundles, discount creation). Time-picker hour/minute `<input>` now carry `id` and `name` attributes for accessibility.
 - **`Select`**: controlled `value` set to `''` (e.g. selecting an empty-value option like "All" or clearing via the new clear button) now correctly resets the displayed selection to the placeholder. Previously the trigger kept showing the last selected value because `undefined` was passed to Kobalte, which treats it as "uncontrolled" and retains its internal selection. The controlled empty state now passes `null` so Kobalte clears the selection.
 
 ## [0.6.5] - 2026-04-13
