@@ -63,6 +63,10 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	searchable?: boolean
 
+	/** When true and a value is selected, show a clear (×) button that resets the value to the placeholder. Default false. */
+
+	clearable?: boolean
+
 	/** Ref forwarded to the root wrapper div. */
 
 	ref?: (el: HTMLDivElement) => void

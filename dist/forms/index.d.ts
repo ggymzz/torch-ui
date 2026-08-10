@@ -62,6 +62,8 @@ interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children
     groups?: SelectOptionGroup[];
     /** When true, show a search input in the dropdown to filter options by label. Default false. */
     searchable?: boolean;
+    /** When true and a value is selected, show a clear (×) button that resets the value to the placeholder. Default false. */
+    clearable?: boolean;
     /**
      * Whether the select should trap focus and lock outside interactions while open.
      * Default false. Set to true when used inside a modal Dialog so that the Dialog's

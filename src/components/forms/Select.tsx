@@ -134,6 +134,10 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	searchable?: boolean
 
+	/** When true and a value is selected, show a clear (×) button that resets the value to the placeholder. Default false. */
+
+	clearable?: boolean
+
 	/**
 	 * Whether the select should trap focus and lock outside interactions while open.
 	 * Default false. Set to true when used inside a modal Dialog so that the Dialog's
@@ -194,6 +198,8 @@ export const Select = (props: SelectProps) => {
 
 		'searchable',
 
+		'clearable',
+
 		'modal',
 
 		'ref',
@@ -239,9 +245,18 @@ export const Select = (props: SelectProps) => {
 	}
 
 	const selectedOption = () =>
-		local.value != null && local.value !== ''
+		local.value != null
 			? allFlatOptions().find((opt) => opt.value === local.value)
 			: undefined
+
+	const showClear = () => !!local.clearable && !local.disabled && !!local.value && !!selectedOption()
+
+	// 受控且值为空（''）时向 Kobalte 传 null 而非 undefined：Kobalte 的
+	// createControllableSignal 仅当 value !== void 0 才视为受控，传 undefined 会
+	// 回退到内部选中态，导致"选中空值选项/清除后 trigger 仍显示旧值"。传 null 让
+	// Kobalte 清空选中（null 为受控值，选中集变空 Selection）。非受控时仍传
+	// undefined，保留 Kobalte 内部选择能力。
+	const controlledValue = () => (local.value != null ? (selectedOption() ?? null) : undefined)
 
 	const filteredOptions = (): SelectOption[] => {
 
@@ -409,7 +424,7 @@ export const Select = (props: SelectProps) => {
 
 			class={cn(
 
-				'w-full flex flex-col min-h-0 rounded-lg border transition-all overflow-hidden',
+				'w-full flex flex-col min-h-0 relative rounded-lg border transition-all overflow-hidden',
 
 				sc().h,
 
@@ -448,6 +463,8 @@ export const Select = (props: SelectProps) => {
 					'disabled:bg-surface-dim disabled:text-ink-500 disabled:cursor-not-allowed',
 
 					'data-[placeholder-shown]:text-ink-400',
+
+					showClear() && 'pr-8',
 
 					local.triggerClass
 
@@ -489,13 +506,37 @@ export const Select = (props: SelectProps) => {
 
 				</KobalteSelect.Value>
 
-				<KobalteSelect.Icon class="inline-flex shrink-0 w-4 items-center justify-center text-ink-400">
+				<Show when={!showClear()}>
 
-					{icons.chevronDown({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
+					<KobalteSelect.Icon class="inline-flex shrink-0 w-4 items-center justify-center text-ink-400">
 
-				</KobalteSelect.Icon>
+						{icons.chevronDown({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
+
+					</KobalteSelect.Icon>
+
+				</Show>
 
 			</KobalteSelect.Trigger>
+
+			<Show when={showClear()}>
+
+				<button
+
+					type="button"
+
+					aria-label={zh() ? '清除选择' : 'Clear selection'}
+
+					class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-400 hover:text-ink-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50"
+
+					onClick={(e) => { e.stopPropagation(); handleChange(null) }}
+
+				>
+
+					{icons.close({ class: 'h-3.5 w-3.5', 'aria-hidden': 'true' })}
+
+				</button>
+
+			</Show>
 
 		</div>
 
@@ -607,7 +648,7 @@ export const Select = (props: SelectProps) => {
 				fallback={
 					<KobalteSelect<SelectOption>
 
-					value={selectedOption() ?? undefined}
+					value={controlledValue()}
 
 					onChange={handleChange}
 
@@ -647,7 +688,7 @@ export const Select = (props: SelectProps) => {
 			>
 				<KobalteSelect<SelectOption, SelectOptionGroup>
 
-					value={selectedOption() ?? undefined}
+					value={controlledValue()}
 
 					onChange={handleChange}
 

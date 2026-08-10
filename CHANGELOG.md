@@ -5,6 +5,14 @@ All notable changes to `@torch-ui/solid` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`Select`**: new `clearable` prop — when set and a value is selected, a clear (×) button appears in the trigger that resets the value back to the placeholder (fires `onValueChange('')`).
+
+### Fixed
+- **`Select`**: controlled `value` set to `''` (e.g. selecting an empty-value option like "All" or clearing via the new clear button) now correctly resets the displayed selection to the placeholder. Previously the trigger kept showing the last selected value because `undefined` was passed to Kobalte, which treats it as "uncontrolled" and retains its internal selection. The controlled empty state now passes `null` so Kobalte clears the selection.
+
 ## [0.6.5] - 2026-04-13
 
 ### Fixed

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { createSignal } from 'solid-js'
 import { screen } from '@solidjs/testing-library'
 import userEvent from '@testing-library/user-event'
 import { Select } from '../../components/forms/Select'
@@ -88,6 +89,103 @@ describe('Select', () => {
 	it('shows helper text', () => {
 		renderUI(() => <Select options={OPTIONS} helperText="Select your country of residence" />)
 		expect(screen.getByText('Select your country of residence')).toBeInTheDocument()
+	})
+})
+
+describe('Select — clearable', () => {
+	it('shows a clear button when a value is selected and clearable is true', () => {
+		renderUI(() => <Select options={OPTIONS} value="ca" clearable />)
+		expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument()
+	})
+
+	it('does not show a clear button when no value is selected', () => {
+		renderUI(() => <Select options={OPTIONS} clearable />)
+		expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument()
+	})
+
+	it('does not show a clear button when clearable is not set', () => {
+		renderUI(() => <Select options={OPTIONS} value="ca" />)
+		expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument()
+	})
+
+	it('does not show a clear button when disabled', () => {
+		renderUI(() => <Select options={OPTIONS} value="ca" clearable disabled />)
+		expect(screen.queryByRole('button', { name: 'Clear selection' })).not.toBeInTheDocument()
+	})
+
+	it('clears the value back to the placeholder on click', async () => {
+		const user = userEvent.setup()
+		const onValueChange = vi.fn()
+		const Controlled = () => {
+			const [value, setValue] = createSignal('ca')
+			return (
+				<Select
+					options={OPTIONS}
+					value={value()}
+					clearable
+					onValueChange={(v) => { setValue(v); onValueChange(v) }}
+					placeholder="Pick a country"
+				/>
+			)
+		}
+		renderUI(() => <Controlled />)
+		expect(screen.getByText('Canada')).toBeInTheDocument()
+		await user.click(screen.getByRole('button', { name: 'Clear selection' }))
+		expect(onValueChange).toHaveBeenCalledWith('')
+		expect(screen.getByText('Pick a country')).toBeInTheDocument()
+	})
+
+	it('does not open the dropdown when clicking the clear button', async () => {
+		const user = userEvent.setup()
+		renderUI(() => <Select options={OPTIONS} value="ca" clearable />)
+		await user.click(screen.getByRole('button', { name: 'Clear selection' }))
+		expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+	})
+
+	it('clears the display back to the placeholder after selecting an option via the dropdown', async () => {
+		const user = userEvent.setup()
+		const Controlled = () => {
+			const [value, setValue] = createSignal('')
+			return (
+				<Select
+					options={OPTIONS}
+					value={value()}
+					clearable
+					onValueChange={setValue}
+					placeholder="Pick a country"
+				/>
+			)
+		}
+		renderUI(() => <Controlled />)
+		expect(screen.getByText('Pick a country')).toBeInTheDocument()
+		await user.click(screen.getByRole('button'))
+		await user.click(screen.getByRole('option', { name: 'Canada' }))
+		expect(screen.getAllByText('Canada').length).toBeGreaterThan(0)
+		await user.click(screen.getByRole('button', { name: 'Clear selection' }))
+		expect(screen.getByText('Pick a country')).toBeInTheDocument()
+	})
+
+	it('resets to the placeholder when an empty-value option is selected after another value', async () => {
+		const user = userEvent.setup()
+		const OPTIONS_WITH_ALL = [{ value: '', label: 'All countries' }, ...OPTIONS]
+		const Controlled = () => {
+			const [value, setValue] = createSignal('')
+			return (
+				<Select
+					options={OPTIONS_WITH_ALL}
+					value={value()}
+					onValueChange={setValue}
+					placeholder="Select"
+				/>
+			)
+		}
+		renderUI(() => <Controlled />)
+		await user.click(screen.getByRole('button'))
+		await user.click(screen.getByRole('option', { name: 'Canada' }))
+		expect(screen.getAllByText('Canada').length).toBeGreaterThan(0)
+		await user.click(screen.getByRole('button'))
+		await user.click(screen.getByRole('option', { name: 'All countries' }))
+		expect(screen.getByText('Select')).toBeInTheDocument()
 	})
 })
 
