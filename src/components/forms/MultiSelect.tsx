@@ -711,6 +711,11 @@ export function MultiSelect(props: MultiSelectProps) {
 
 				closeOnSelection={false}
 
+				// 与 Select 同根因修复：Kobalte 默认 allowDuplicateSelectionEvents=true，
+				// options 数组新引用触发 options 同步 effect → setSelectedKeys 恒触发 onChange
+				// → 父级 setState → 新 options 引用 → 无限循环。置 false 让内容未变时短路。
+				allowDuplicateSelectionEvents={false}
+
 				onOpenChange={handleOpenChange}
 
 				itemComponent={(itemProps) => (

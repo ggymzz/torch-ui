@@ -627,6 +627,11 @@ export const Select = (props: SelectProps) => {
 
 					closeOnSelection={true}
 
+					// 修复"选项+值同变"时更新循环：Kobalte 默认 allowDuplicateSelectionEvents=true，
+					// options 数组每次渲染新引用会触发 options 同步 effect → setSelectedKeys 恒触发 onChange
+					// → 父级 setState → 新 options 引用 → 无限循环。置 false 让内容未变时短路。
+					allowDuplicateSelectionEvents={false}
+
 					itemComponent={renderItem as never}
 
 					modal={local.modal}
@@ -663,6 +668,11 @@ export const Select = (props: SelectProps) => {
 					validationState={hasError() ? 'invalid' : undefined}
 
 					closeOnSelection={true}
+
+					// 修复"选项+值同变"时更新循环：Kobalte 默认 allowDuplicateSelectionEvents=true，
+					// options 数组每次渲染新引用会触发 options 同步 effect → setSelectedKeys 恒触发 onChange
+					// → 父级 setState → 新 options 引用 → 无限循环。置 false 让内容未变时短路。
+					allowDuplicateSelectionEvents={false}
 
 					itemComponent={renderItem as never}
 
