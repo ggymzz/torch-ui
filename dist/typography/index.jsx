@@ -1,10 +1,10 @@
 import {
   Code,
   Icon
-} from "../chunk/QXRAKQOV.jsx";
+} from "../chunk/S4BK3MS7.jsx";
 import {
   BlockQuote
-} from "../chunk/63AN3DM5.jsx";
+} from "../chunk/A2RILLQA.jsx";
 import "../chunk/N5KQYWCA.jsx";
 export {
   BlockQuote,

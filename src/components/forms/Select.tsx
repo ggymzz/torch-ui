@@ -476,7 +476,12 @@ export const Select = (props: SelectProps) => {
 
 					{(state) => {
 
-						const opt = state.selectedOption()
+						const sel = state.selectedOption()
+
+						// Kobalte 在分组模式（groups）下由选中项重建的内部 option 可能不保留 icon/color 等
+						// 扩展字段，导致运行时选中后触发器丢失预览图标。这里按 value 回查消费方提供的
+						// options 完整对象，确保触发器始终展示正确的 icon/color 与 label。
+						const opt = sel && sel.value != null ? allFlatOptions().find((o) => o.value === sel.value) ?? sel : sel
 
 						if (!opt) return <span class="truncate">{local.placeholder || (zh() ? '请选择' : 'Select an option')}</span>
 

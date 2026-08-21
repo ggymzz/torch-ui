@@ -5,7 +5,7 @@ import {
   DarkModeToggle,
   Link,
   useCopyToClipboard
-} from "../chunk/63AN3DM5.jsx";
+} from "../chunk/A2RILLQA.jsx";
 import "../chunk/N5KQYWCA.jsx";
 export {
   Button,
