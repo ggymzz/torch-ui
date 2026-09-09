@@ -1,6 +1,6 @@
 import { type JSX, splitProps, Show } from 'solid-js'
 
-import { Checkbox as KobalteCheckbox } from '@kobalte/core/checkbox'
+import { Checkbox as KobalteCheckbox, type CheckboxInputProps } from '@kobalte/core/checkbox'
 
 import { cn } from '../../utilities/classNames'
 
@@ -214,7 +214,7 @@ export function Checkbox(props: CheckboxProps) {
 
 			>
 
-				<KobalteCheckbox.Input {...others} />
+				<KobalteCheckbox.Input {...(others as CheckboxInputProps)} />
 
 				<KobalteCheckbox.Control
 

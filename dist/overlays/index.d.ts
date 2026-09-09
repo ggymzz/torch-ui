@@ -1,5 +1,6 @@
 export { A as AlertDialog, a as AlertDialogProps } from '../AlertDialog-BhMAi-uk.js';
-export { D as Dialog, a as DialogOverlayAnimation, b as DialogPanelAnimation, c as DialogProps, d as DialogSize, e as Drawer, f as DrawerActionsPosition, g as DrawerOffset, h as DrawerProps, i as DrawerSide, j as DrawerSize, P as Popover, k as PopoverAlign, l as PopoverAnchor, m as PopoverArrow, n as PopoverCloseButton, o as PopoverContent, p as PopoverContentPrimitive, q as PopoverContentProps, r as PopoverPortal, s as PopoverRoot, t as PopoverRootProps, u as PopoverSide, v as PopoverTrigger, T as Tooltip, w as TooltipArrow, x as TooltipContent, y as TooltipContentPrimitive, z as TooltipContentProps, A as TooltipPortal, B as TooltipRoot, C as TooltipTrigger } from '../Popover-mxeiEsmy.js';
+export { D as Dialog, a as DialogOverlayAnimation, b as DialogPanelAnimation, c as DialogProps, d as DialogSize, e as Drawer, f as DrawerActionsPosition, g as DrawerOffset, h as DrawerProps, i as DrawerSide, j as DrawerSize, P as Popover, k as PopoverAlign, l as PopoverAnchor, m as PopoverArrow, n as PopoverCloseButton, o as PopoverContent, p as PopoverContentPrimitive, q as PopoverContentProps, r as PopoverPortal, s as PopoverRoot, t as PopoverRootProps, u as PopoverSide, v as PopoverTrigger, T as Tooltip, w as TooltipArrow, x as TooltipContent, y as TooltipContentPrimitive, z as TooltipContentProps, A as TooltipPortal, B as TooltipRoot, C as TooltipTrigger } from '../Popover-CtUzvaDp.js';
+import * as _kobalte_core_menu from '@kobalte/core/menu';
 import * as _kobalte_core_dropdown_menu from '@kobalte/core/dropdown-menu';
 import * as _kobalte_core_context_menu from '@kobalte/core/context-menu';
 import { ContextMenuContentProps as ContextMenuContentProps$1, ContextMenuItemProps as ContextMenuItemProps$1, ContextMenuSeparatorProps as ContextMenuSeparatorProps$1 } from '@kobalte/core/context-menu';
@@ -13,22 +14,22 @@ import '@kobalte/core/popover';
 /** Pass-through to Kobalte's ContextMenu.Root. See Kobalte docs for available props (e.g. onOpenChange). */
 declare const ContextMenuRoot: typeof _kobalte_core_context_menu.Root & {
     Arrow: typeof _kobalte_core_dropdown_menu.Arrow;
-    CheckboxItem: typeof _kobalte_core_dropdown_menu.CheckboxItem;
+    CheckboxItem: typeof _kobalte_core_menu.MenuCheckboxItem;
     Content: typeof _kobalte_core_context_menu.Content;
-    Group: typeof _kobalte_core_dropdown_menu.Group;
-    GroupLabel: typeof _kobalte_core_dropdown_menu.GroupLabel;
-    Icon: typeof _kobalte_core_dropdown_menu.Icon;
-    Item: typeof _kobalte_core_dropdown_menu.Item;
-    ItemDescription: typeof _kobalte_core_dropdown_menu.ItemDescription;
-    ItemIndicator: typeof _kobalte_core_dropdown_menu.ItemIndicator;
-    ItemLabel: typeof _kobalte_core_dropdown_menu.ItemLabel;
-    Portal: typeof _kobalte_core_dropdown_menu.Portal;
-    RadioGroup: typeof _kobalte_core_dropdown_menu.RadioGroup;
-    RadioItem: typeof _kobalte_core_dropdown_menu.RadioItem;
+    Group: typeof _kobalte_core_menu.MenuGroup;
+    GroupLabel: typeof _kobalte_core_menu.MenuGroupLabel;
+    Icon: typeof _kobalte_core_menu.MenuIcon;
+    Item: typeof _kobalte_core_menu.MenuItem;
+    ItemDescription: typeof _kobalte_core_menu.MenuItemDescription;
+    ItemIndicator: typeof _kobalte_core_menu.MenuItemIndicator;
+    ItemLabel: typeof _kobalte_core_menu.MenuItemLabel;
+    Portal: typeof _kobalte_core_menu.MenuPortal;
+    RadioGroup: typeof _kobalte_core_menu.MenuRadioGroup;
+    RadioItem: typeof _kobalte_core_menu.MenuRadioItem;
     Separator: typeof _kobalte_core_dropdown_menu.Separator;
-    Sub: typeof _kobalte_core_dropdown_menu.Sub;
-    SubContent: typeof _kobalte_core_dropdown_menu.SubContent;
-    SubTrigger: typeof _kobalte_core_dropdown_menu.SubTrigger;
+    Sub: typeof _kobalte_core_menu.MenuSub;
+    SubContent: typeof _kobalte_core_menu.MenuSubContent;
+    SubTrigger: typeof _kobalte_core_menu.MenuSubTrigger;
     Trigger: typeof _kobalte_core_context_menu.Trigger;
 };
 /** Pass-through to Kobalte's ContextMenu.Trigger. Renders as the element that responds to right-click. */
