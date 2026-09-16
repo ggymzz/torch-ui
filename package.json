@@ -46,7 +46,6 @@
   "author": "Sean Dowd <sean.dowd.sr@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@torch-ui/solid": "0.6.20",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.3.1"
   },
