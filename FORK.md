@@ -216,7 +216,7 @@ bun install                   # monorepo 侧链接 workspace
 
 | 分支 | 状态 | 处置 |
 |---|---|---|
-| `fork/release` | 工作分支。本轮维护提交（`23ab9ca`、`b02e22d`、`a2811c3` …）尚未推送，本地领先 `origin/fork/release`（= `559f062`） | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
+| `fork/release` | 工作分支，与 `origin/fork/release` 同步（= `7331a08`，2026-09-16 经代理推送） | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
 | `main` | 等于上游快照 `2bd0573` | 保留（作为上游基线） |
 | `pr/upstream-a11y-i18n-fixes` | `fork/release` 的前 4 个提交（`f848cfc`→`1b7e595`），对上游仍有价值 | **保留**（是给上游的 PR 分支） |
 | `fix/a11y-i18n-and-component-fixes` | 2026-07 ~ 08 的开发线，18 个提交 | 建议归档 |
@@ -340,6 +340,8 @@ HEAD 变成 unborn，于是 `status` 相对「空 HEAD」把所有文件都算�
 
 1. **把工作推到远端（最重要）。** GitHub 上的 `origin/fork/release` 是目前唯一
    不会丢的载体。本地引用会丢，reflog 也可能被环境一并清理，远端是最后一道防线。
+   （2026-09-16 实测：直连被 reset，走本机代理 `git -c http.proxy=http://127.0.0.1:7897 push` 可通；
+   推送的是几 KB 的提交对象，不涉大文件流量。）
 2. **分支名改用顶层形式（根治本机缺陷）。** 只要分支名不含 `/`（`release`、
    `fix-a11y-i18n`，而不是 `fork/release`、`fix/xxx`），git 的写入路径就完全正常——
    已用真实仓库对照验证。改名后 `post-commit` hook 基本不会再触发修复。
