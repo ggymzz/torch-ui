@@ -37,15 +37,15 @@
 
 ### 仓库历史形态
 
-本仓库是**浅历史**：全库 13 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
-+ 本项目开发提交 12 个（2026-08-06 → 2026-09-16）。
+本仓库是**浅历史**：全库 15 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
++ 本项目开发提交 14 个（2026-08-06 → 2026-09-16）。
 上游的完整提交历史不在本地。
 
 ---
 
 ## 3. 与上游的差异
 
-以 `upstream/main` 为基线：
+以 `upstream/main` 为基线（截至 `b02e22d`；本文档自身的更新会继续改变该统计）：
 
 ```
 79 files changed, 3255 insertions(+), 1676 deletions(-)
@@ -145,7 +145,13 @@ npm run test         # vitest run
 
 **⑦ 提交**
 
-提交信息格式：`type(scope): 中文描述`，与现有 11 个提交保持一致。
+提交信息格式：`type(scope): 中文描述`，与现有提交保持一致。
+
+**⑧ 提交后立刻验证引用**（本机必需，见 §10）
+
+```bash
+git -C <repo> rev-parse fork/release    # 必须返回 sha；报 unknown revision 即引用没写成功
+```
 
 ---
 
@@ -156,7 +162,7 @@ npm run test         # vitest run
 理论上不需要提交 dist。
 
 **现状**：`dist/` 仍为 tracked，每次 `npm run build` 都会产生大量 diff，
-提交历史噪音偏大（本次相对上游的 78 个改动文件中，32 个是 dist 产物）。
+提交历史噪音偏大（相对上游的 79 个改动文件中，29 个是 dist 产物）。
 
 **待决策**：若确认本项目只用 workspace 消费、不再用 `github:` 安装，可执行
 
@@ -183,8 +189,8 @@ cd ..
 bun install          # monorepo 侧链接 workspace
 ```
 
-> **本机额外坑**：Windows 沙箱下**新建嵌套引用**（如 `fix/xxx`）会静默失败，
-> 新建嵌套分支前必读 §10。
+> **本机额外坑**：这台机器上 **git 写引用文件会静默失败**（`git commit` 报成功但引用没落盘）。
+> 在本仓库做任何 git 写操作前必读 **§10**，并遵守 §5 ⑧ 的「提交后立刻验证引用」。
 
 ---
 
@@ -192,7 +198,7 @@ bun install          # monorepo 侧链接 workspace
 
 | 分支 | 状态 | 处置 |
 |---|---|---|
-| `fork/release` | 工作分支，本地领先 `origin` **1 个提交**（ahead/behind = 1/0，`23ab9ca` 未推送） | **在用，保留** |
+| `fork/release` | 工作分支。本轮维护提交（`23ab9ca`、`b02e22d` 等）尚未推送，本地领先 `origin/fork/release`（= `559f062`） | **在用，保留** |
 | `main` | 等于上游快照 `2bd0573` | 保留（作为上游基线） |
 | `pr/upstream-a11y-i18n-fixes` | `fork/release` 的前 4 个提交（`f848cfc`→`1b7e595`），对上游仍有价值 | **保留**（是给上游的 PR 分支） |
 | `fix/a11y-i18n-and-component-fixes` | 2026-07 ~ 08 的开发线，18 个提交 | 建议归档 |
@@ -201,7 +207,7 @@ bun install          # monorepo 侧链接 workspace
 
 三个 `fix/*` 分支的成果已收口进 `fork/release`——以 2026-08-06 的
 `f848cfc fix(a11y,i18n): bundle accessibility, i18n, and component behavior fixes`
-为起点重新整理为 11 个干净的提交。
+为起点重新整理为一批干净的提交。
 
 **已核查**：这三个分支与 `fork/release` 的剩余差异为「旧版本内容 + 格式噪音」。
 典型如 `TreeView.tsx` 的 418 行差异，实为引号 / 缩进 / 分号的全量格式化差异
@@ -221,14 +227,15 @@ bun install          # monorepo 侧链接 workspace
 
 ---
 
-## 10. 本机 Windows 环境的 git 坑：嵌套引用静默写入失败
+## 10. 本机环境的 git 坑：引用文件写入静默失败
 
-> 2026-09-16 实测。**这不是 fork 的问题，是本机 git/沙箱环境的问题**，
-> 但会以「提交成功却丢引用」的形式伪装成仓库损坏，必须记录。
+> 2026-09-16 实测。**这是本机环境的问题，不是 fork 自身的问题。**
+> 但它会伪装成「仓库损坏 / 历史丢失」，并让 `git commit`、`git fetch`、`git branch`
+> 的成功输出变得不可信。**在本仓库做 git 写操作前必读本节。**
 
 ### 10.1 现象
 
-`git commit` **打印成功**，但引用实际没落盘：
+`git commit` 打印成功，但引用没落盘：
 
 ```
 [fork/release 23ab9ca] chore(deps): drop accidental self-dependency; add FORK.md
@@ -247,68 +254,79 @@ A  .gitignore
 ...
 ```
 
-假象很像「分支被重置了 / 历史丢了」。**实际是引用文件 `refs/heads/fork/release`
-没有被创建**，HEAD 指向一个 unborn branch，于是 `status` 相对「空 HEAD」
-把所有文件都算成 `A`。提交对象本身完好，`git cat-file -t 23ab9ca` → `commit`。
+「提交成功却丢历史」是**假象**：实际是**引用文件 `refs/heads/fork/release` 没有被写出来**，
+HEAD 变成 unborn，于是 `status` 相对「空 HEAD」把所有文件都算成 `A`。
+**提交对象是完好的**——`git cat-file -t 23ab9ca` → `commit`，父链完整可溯。
 
-### 10.2 根因
+### 10.2 实测证据
 
-**本机 git 无法在 `.git/refs/heads/` 下创建子目录**（顶层引用文件可以正常写）。
-新建嵌套引用（`xxx/yyy`）需要先 `mkdir`，该 `mkdir` 被静默吞掉并返回成功；
-git 不报错，于是「成功但无效果」。
-
-对照探针（决定性证据）：
-
-| 探针 | 操作 | 结果 |
+| 操作 | git 的输出 | 引用是否落盘 |
 |---|---|---|
-| P1 | `git branch probe-plain`（顶层引用） | ✅ 引用文件正常创建 |
-| P2 | `git branch probe-nest/x`（嵌套） | ❌ **exit 0，文件未创建** |
-| P3 | `git update-ref refs/heads/fork/release <sha>` | ❌ 同上，静默失败 |
-| P4 | 手工 `mkdir` + 写引用文件 | ✅ **成功，git 立刻认账** |
+| `git commit`（2 次） | 打印 `[fork/release <sha>] ... N files changed` | ❌ 未写 |
+| `git branch <ns>/<name>` | 无输出、exit 0 | ❌ 未写（8 次失败 / 1 次成功） |
+| `git update-ref refs/...` | 无输出、exit 0 | ❌ 未写 |
+| `git fetch --all --prune` | 宣布 `* [new branch]` ×5、`* [new tag]` ×47，exit 0 | ❌ **一个都没写** |
+| 手工写引用文件（PowerShell / .NET） | — | ✅ **成功，git 立刻认账** |
 
-`icacls .git/refs/heads` 显示存在 `CodexSandboxUsers` 组，属沙箱环境；
-目录属性为普通 `Directory`，无只读位。**符合「沙箱对目录创建做拦截」的特征**。
+失败**同时发生在顶层与嵌套引用**（`refs/tags/v0.6.20` 这类顶层标签同样丢），
+所以**不是嵌套命名的问题**——早期曾误判为「嵌套目录无法创建」，已由 `git branch pb/nested`
+成功创建所推翻。
 
-### 10.3 绕过方法（新建嵌套分支前必做）
+已排除的配置因素：`core.fscache`（关闭后仍失败）、`core.autocrlf`、`core.symlinks`、
+`GIT_CONFIG_NOSYSTEM`。
 
-先手工把父目录建出来，再让 git 写引用：
+**特征**：git 的 `rename()`（lock 文件 → 引用文件）在本机**返回成功但不落盘**，
+因此 git 认为一切正常、不报错。环境线索：`.git/refs/heads` 的 ACL 中存在
+`CodexSandboxUsers` 组，**疑似沙箱 / 安全软件的「受保护目录」策略对 `.git/refs`
+的落盘做静默拦截**（目录属性为普通 `Directory`，无只读位，ACL 亦无显式拒绝）。
 
-```powershell
-# 以新建 fix/example 为例
-New-Item -ItemType Directory -Force "<repo>\.git\refs\heads\fix" | Out-Null
-New-Item -ItemType Directory -Force "<repo>\.git\logs\refs\heads\fix" | Out-Null
-git -C "<repo>" branch fix/example
+### 10.3 首要建议
+
+1. **改本仓库优先在非沙箱终端操作**；或把 `torch-ui-fork/.git` 加入安全软件的排除项。
+2. **不要只信 git 的成功输出。** 每次 `commit` / `fetch` / `branch` 后立刻验证：
+
+```
+git -C <repo> rev-parse <ref>      # 报 unknown revision 就是没写成功
+git -C <repo> log --oneline -1
 ```
 
-已有嵌套目录的仓库不受影响（`fix/`、`pr/` 已存在，可正常在其下建分支）。
-**风险点只在「父目录尚不存在」时。**
+3. 仓库**必须配远端**：本次正是靠 `origin/fork/release` 与 reflog 才能无损对照恢复。
 
-### 10.4 引用丢失后的恢复
+### 10.4 引用丢失 / 未写入时的恢复（已验证）
 
-对象通常完好，只需补回引用文件：
+**关键点：每个分支的最后 sha 都在 `.git/logs/refs/heads/<分支>` 的 reflog 末行里。**
 
 ```powershell
-# 1. 确认提交对象还活着
-git -C "<repo>" cat-file -t <sha>          # 期望输出 commit
-
-# 2. 手工补引用文件（内容 = 40 位 sha + 换行，无 BOM）
-$d = "<repo>\.git\refs\heads\fork"
-New-Item -ItemType Directory -Force $d | Out-Null
-[System.IO.File]::WriteAllText("$d\release", "<sha>`n", [System.Text.UTF8Encoding]::new($false))
-
-# 3. 验收
-git -C "<repo>" rev-parse HEAD
-git -C "<repo>" rev-list --count HEAD
-git -C "<repo>" status --short              # 期望为空
+$repo = '<repo>'
+# ① 取完整 sha —— 务必让 git 输出，不要手抄
+$sha = (git -C $repo rev-parse b02e22d).Trim()
+# ② 手工写引用文件（40 位 sha + LF，无 BOM）
+$rel  = '.git\refs\heads\fork\release'
+$full = Join-Path $repo $rel
+New-Item -ItemType Directory -Force -Path (Split-Path $full -Parent) | Out-Null
+[System.IO.File]::WriteAllBytes($full, [System.Text.Encoding]::ASCII.GetBytes($sha + "`n"))
+# ③ 验收
+git -C $repo rev-parse HEAD
+git -C $repo rev-list --count HEAD
+git -C $repo status --short          # 期望为空
 ```
 
-**判定要点**：先看 `.git/refs/heads/*` 下目标引用文件是否存在，
-不要被 `status` 满屏的 `A` 误导成「历史丢了」。
-`git fsck` 报该提交为 `dangling commit` 就是「无引用指向它」的直接证据。
+批量恢复本地分支：逐个读 `.git/logs/refs/heads/**` 的**末行**，取第 2 列 sha，写回同名引用。
+远端跟踪引用与标签：`git ls-remote <remote>` 取全 sha，写回 `refs/remotes/**`、`refs/tags/**`。
 
-### 10.5 预防
+**两个已踩的坑：**
 
-- 分支名**尽量用顶层形式**（`fix-xxx` 而非 `fix/xxx`），绕开该问题。
-- 必须用嵌套名时，建分支前先手工 `mkdir` 父目录（§10.3）。
-- 提交后**立即** `git log -1` 验一下引用是否真的落了盘，别只看 commit 输出。
-- 仓库**必须配远端**：本次若 `origin/fork/release` 也丢了就无从对照。
+- **手工写引用时 sha 必须是完整 40 位。** 少一个字符，git 报
+  `warning: ignoring broken ref <name>` 并**直接忽略该引用**，`rev-parse` 也救不回来。
+- **不要在计算出来的路径上用 `Remove-Item -Recurse`。**
+  本轮维护中一条 `Remove-Item -Recurse -Force (Split-Path $p -Parent)` 因 `$p` 为空
+  而解析到 `.git\refs\heads` 本身，**一次删光本仓库全部本地引用**（并连带
+  `refs/remotes`、`refs/tags`）。清理只写**显式字面路径**，且不加 `-Recurse`。
+
+### 10.5 判定要点小结
+
+- 看到 `your current branch 'X' does not have any commits yet` + `status` 满屏 `A`：
+  **先去文件系统确认 `.git/refs/heads/<X>` 这个文件在不在**，不要急着认为历史丢了。
+- `git fsck` 把某提交报为 `dangling commit` = 「没有任何引用指向它」的直接证据。
+- `git fsck` 出现 `notice: HEAD points to an unborn branch` 同样指向引用缺失。
+- 对象库通常完好：`git fsck` 无 `error` / `missing` / `corrupt` 即可放心恢复。
