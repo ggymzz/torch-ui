@@ -37,8 +37,8 @@
 
 ### 仓库历史形态
 
-本仓库是**浅历史**：全库仅 12 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
-+ 本项目开发提交 11 个（2026-08-06 → 2026-09-09）。
+本仓库是**浅历史**：全库 13 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
++ 本项目开发提交 12 个（2026-08-06 → 2026-09-16）。
 上游的完整提交历史不在本地。
 
 ---
@@ -48,11 +48,12 @@
 以 `upstream/main` 为基线：
 
 ```
-78 files changed, 3093 insertions(+), 1677 deletions(-)
+79 files changed, 3255 insertions(+), 1676 deletions(-)
 ```
 
-其中 `src/` 部分 **45 个文件**（含新增 `src/utilities/localeContext.ts`），
-其余为 `dist/` 构建产物、测试、`skill/reference` 文档与 CHANGELOG。
+其中 `src/` 部分 **45 个文件**（1071 insertions / 278 deletions，含新增
+`src/utilities/localeContext.ts`）、`dist/` 构建产物 **29 个**，
+其余为测试、`skill/reference` 文档、`CHANGELOG` 与 `FORK.md`。
 
 ### A 类 · 通用修复（上游本该接收）
 
@@ -76,6 +77,12 @@
 
 - `@kobalte/core` 0.13.11 → 0.13.14 及 Checkbox 类型兼容
 - 打包产物 chunk 引用路径更新
+- 移除 `package.json` 中误加的**自依赖** `"@torch-ui/solid": "0.6.20"`
+
+  该包自身就是 `@torch-ui/solid`，这条依赖会在 `node_modules/@torch-ui/solid/`
+  下递归嵌套一份拷贝（130 文件 / 2.71 MB），而**没有任何源码引用它**。
+  已连带清理 `package-lock.json` 中 3 处相关条目与磁盘上的嵌套拷贝。
+- 新增 `FORK.md`（本文档）
 
 ---
 
@@ -176,13 +183,16 @@ cd ..
 bun install          # monorepo 侧链接 workspace
 ```
 
+> **本机额外坑**：Windows 沙箱下**新建嵌套引用**（如 `fix/xxx`）会静默失败，
+> 新建嵌套分支前必读 §10。
+
 ---
 
 ## 8. 分支现状
 
 | 分支 | 状态 | 处置 |
 |---|---|---|
-| `fork/release` | 工作分支，与 `origin` 完全同步（ahead/behind = 0/0） | **在用，保留** |
+| `fork/release` | 工作分支，本地领先 `origin` **1 个提交**（ahead/behind = 1/0，`23ab9ca` 未推送） | **在用，保留** |
 | `main` | 等于上游快照 `2bd0573` | 保留（作为上游基线） |
 | `pr/upstream-a11y-i18n-fixes` | `fork/release` 的前 4 个提交（`f848cfc`→`1b7e595`），对上游仍有价值 | **保留**（是给上游的 PR 分支） |
 | `fix/a11y-i18n-and-component-fixes` | 2026-07 ~ 08 的开发线，18 个提交 | 建议归档 |
@@ -208,3 +218,97 @@ bun install          # monorepo 侧链接 workspace
 - 上游已停更，不会有新功能或破坏性变更，因此**不设「跟随上游」的工作项**。
 - 只发 dist + styles 到 npm（`package.json` 的 `files` 字段不含 `src`），
   所以 **npm 安装方式拿不到源码**，本项目必须用 workspace 或 git 方式消费。
+
+---
+
+## 10. 本机 Windows 环境的 git 坑：嵌套引用静默写入失败
+
+> 2026-09-16 实测。**这不是 fork 的问题，是本机 git/沙箱环境的问题**，
+> 但会以「提交成功却丢引用」的形式伪装成仓库损坏，必须记录。
+
+### 10.1 现象
+
+`git commit` **打印成功**，但引用实际没落盘：
+
+```
+[fork/release 23ab9ca] chore(deps): drop accidental self-dependency; add FORK.md
+ 4 files changed, 214 insertions(+), 51 deletions(-)
+```
+
+紧接着：
+
+```
+$ git log -3
+fatal: your current branch 'fork/release' does not have any commits yet
+
+$ git status --short
+A  .github/workflows/publish.yml     # 390 个文件全部显示为新增
+A  .gitignore
+...
+```
+
+假象很像「分支被重置了 / 历史丢了」。**实际是引用文件 `refs/heads/fork/release`
+没有被创建**，HEAD 指向一个 unborn branch，于是 `status` 相对「空 HEAD」
+把所有文件都算成 `A`。提交对象本身完好，`git cat-file -t 23ab9ca` → `commit`。
+
+### 10.2 根因
+
+**本机 git 无法在 `.git/refs/heads/` 下创建子目录**（顶层引用文件可以正常写）。
+新建嵌套引用（`xxx/yyy`）需要先 `mkdir`，该 `mkdir` 被静默吞掉并返回成功；
+git 不报错，于是「成功但无效果」。
+
+对照探针（决定性证据）：
+
+| 探针 | 操作 | 结果 |
+|---|---|---|
+| P1 | `git branch probe-plain`（顶层引用） | ✅ 引用文件正常创建 |
+| P2 | `git branch probe-nest/x`（嵌套） | ❌ **exit 0，文件未创建** |
+| P3 | `git update-ref refs/heads/fork/release <sha>` | ❌ 同上，静默失败 |
+| P4 | 手工 `mkdir` + 写引用文件 | ✅ **成功，git 立刻认账** |
+
+`icacls .git/refs/heads` 显示存在 `CodexSandboxUsers` 组，属沙箱环境；
+目录属性为普通 `Directory`，无只读位。**符合「沙箱对目录创建做拦截」的特征**。
+
+### 10.3 绕过方法（新建嵌套分支前必做）
+
+先手工把父目录建出来，再让 git 写引用：
+
+```powershell
+# 以新建 fix/example 为例
+New-Item -ItemType Directory -Force "<repo>\.git\refs\heads\fix" | Out-Null
+New-Item -ItemType Directory -Force "<repo>\.git\logs\refs\heads\fix" | Out-Null
+git -C "<repo>" branch fix/example
+```
+
+已有嵌套目录的仓库不受影响（`fix/`、`pr/` 已存在，可正常在其下建分支）。
+**风险点只在「父目录尚不存在」时。**
+
+### 10.4 引用丢失后的恢复
+
+对象通常完好，只需补回引用文件：
+
+```powershell
+# 1. 确认提交对象还活着
+git -C "<repo>" cat-file -t <sha>          # 期望输出 commit
+
+# 2. 手工补引用文件（内容 = 40 位 sha + 换行，无 BOM）
+$d = "<repo>\.git\refs\heads\fork"
+New-Item -ItemType Directory -Force $d | Out-Null
+[System.IO.File]::WriteAllText("$d\release", "<sha>`n", [System.Text.UTF8Encoding]::new($false))
+
+# 3. 验收
+git -C "<repo>" rev-parse HEAD
+git -C "<repo>" rev-list --count HEAD
+git -C "<repo>" status --short              # 期望为空
+```
+
+**判定要点**：先看 `.git/refs/heads/*` 下目标引用文件是否存在，
+不要被 `status` 满屏的 `A` 误导成「历史丢了」。
+`git fsck` 报该提交为 `dangling commit` 就是「无引用指向它」的直接证据。
+
+### 10.5 预防
+
+- 分支名**尽量用顶层形式**（`fix-xxx` 而非 `fix/xxx`），绕开该问题。
+- 必须用嵌套名时，建分支前先手工 `mkdir` 父目录（§10.3）。
+- 提交后**立即** `git log -1` 验一下引用是否真的落了盘，别只看 commit 输出。
+- 仓库**必须配远端**：本次若 `origin/fork/release` 也丢了就无从对照。
