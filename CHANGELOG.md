@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - **Dependencies**: dropped the accidental self-dependency `"@torch-ui/solid"` from `dependencies`. Because this package *is* `@torch-ui/solid`, the declaration made npm resolve the published copy into `node_modules/@torch-ui/solid` (0.6.20) and recursively nest a second one (0.6.19) beneath it — pure install/build noise. No source file imports `@torch-ui/solid`; the only consumers are workspace links (`workspace:*`) from `shopfaas-store`, `shopfaas-suite` and `packages/spa-shared`.
-- **Docs**: added `FORK.md` — the maintenance contract for this in-project fork (upstream status, diff scope, version policy, component-change workflow, dist policy, environment recovery).
 
 ### Changed
 - **Dependencies**: upgraded in-range toolchain deps — `@kobalte/core` 0.13.12→0.13.14, `@playwright/test` 1.58.2→1.63.0, `@testing-library/user-event` 14.6.1→14.6.7, `tailwind-merge` 3.5.0→3.6.0, `tailwindcss` 4.2.1→4.3.3, `vite-plugin-solid` 2.11.10→2.11.14, `vitest` 4.0.18→4.1.11, `solid-js` 1.9.11→1.9.15, `@types/node` 25.3.3→25.9.5; self-dep `@torch-ui/solid` pin 0.6.19→0.6.20; esbuild dev-server advisory (GHSA-g7r4-m6w7-qqqr) resolved via `npm audit fix`. Major upgrades (TypeScript 7, vitest 5, jsdom 30, jest-axe 11, jest-dom 7, @types/node 26) intentionally deferred — fork stability for monorepo consumers takes priority.
@@ -17,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **`Select`**: new `clearable` prop — when set and a value is selected, a clear (×) button appears in the trigger that resets the value back to the placeholder (fires `onValueChange('')`).
+- **Docs**: added `FORK.md` — the maintenance contract for this in-project fork (upstream status, diff scope, version policy, component-change workflow, dist policy, environment recovery) plus §10, the machine-specific git constraint below.
+- **Tooling**: added `scripts/ref-guard.ps1` — detects and repairs git refs that this machine silently drops. Root cause is documented in `FORK.md` §10: git cannot create new subdirectories under `.git/refs/`, so every ref path that needs one (`refs/heads/feature/x`, `refs/tags/v1/x`, a `git fetch`ed `refs/remotes/<remote>/<new>` branch) is written nowhere while git still reports success and exit 0. The commit object and the reflog entry *are* written, so the ref is rebuilt from the reflog's last line. `post-commit` hook wires this up automatically.
 
 ### Fixed
 - **`DatePicker`**: `min`/`max`/`value` props are now read eagerly inside the render root via `createMemo`. Solid lazily memoizes reactive prop getters, and the previous first access happened inside the `onOpenChange` event handler (outside `createRoot`), producing the dev warning "computations created outside a `createRoot` or `render` will never be disposed" and leaking the memo. This also fixes the same warning on any page passing reactive `min`/`max` (e.g. combo bundles, discount creation). Time-picker hour/minute `<input>` now carry `id` and `name` attributes for accessibility.
