@@ -83,4 +83,43 @@ describe('Autocomplete', () => {
 		))
 		expect(screen.getByRole('combobox')).toBeDisabled()
 	})
+
+	it('leaves caller-filtered options untouched when filterOptions is provided', async () => {
+		const user = userEvent.setup()
+		// Async/remote search: the caller already decided what matches the query, and the
+		// labels intentionally do not contain it (searching members by phone, names by handle).
+		const remote = [
+			{ value: 'ethan', label: 'Ethan Xu' },
+			{ value: 'sophia', label: 'Sophia Wang' },
+		]
+		renderUI(() => (
+			<Autocomplete
+				options={remote}
+				filterOptions={opts => opts.filter(o => o.value === 'ethan')}
+				onValueChange={vi.fn()}
+			/>
+		))
+		const input = screen.getByRole('combobox')
+		await user.click(input)
+		await user.type(input, '15500000013')
+		await waitFor(() => {
+			expect(document.body.textContent).toContain('Ethan Xu')
+		}, { timeout: 2000 })
+		// The caller's own filter is still honoured — this is not "show everything".
+		expect(document.body.textContent).not.toContain('Sophia Wang')
+	})
+
+	it('still filters by label when filterOptions is absent', async () => {
+		const user = userEvent.setup()
+		renderUI(() => (
+			<Autocomplete options={OPTIONS} onValueChange={vi.fn()} />
+		))
+		const input = screen.getByRole('combobox')
+		await user.click(input)
+		await user.type(input, 'vue')
+		await waitFor(() => {
+			expect(document.body.textContent).toContain('Vue')
+		}, { timeout: 2000 })
+		expect(document.body.textContent).not.toContain('Angular')
+	})
 })

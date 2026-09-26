@@ -401,7 +401,12 @@ export function Autocomplete(props: AutocompleteProps) {
 
 				value={selectedOption()}
 
-			defaultFilter={local.filterOptions ? undefined : (option, input) => {
+			// Kobalte merges props with Solid `mergeProps`, which skips `undefined` and keeps
+			// going to its built-in `contains` default — so "pass nothing" does NOT disable
+			// filtering, it silently re-filters the caller's already-filtered options by the
+			// typed text (server-side hits whose label differs from the query disappear).
+			// Pass an always-true filter instead: the caller owns filtering.
+			defaultFilter={local.filterOptions ? () => true : (option, input) => {
 				// When the input equals the current selected item's label (i.e., the user is
 			// viewing the selected value, not typing), show all options so they can switch
 			// to another value (official behavior: with a value selected, opening the
