@@ -169,6 +169,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ref-guard.ps1 -All -
 ```
 
 输出 `OK` 才算提交真的落地；报 `[LOST]` 就跑一次不带 `-Verify` 的同命令即可修复。
+分支被 `git gc` 打包后只剩 `packed-refs` 条目属正常，守卫按 git 语义解析，不会误报（§10.5）。
 
 ---
 
@@ -366,9 +367,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ref-guard.ps1 -All -
 
 策略说明：
 
-- **`LOST`**（引用文件缺失、reflog 有值）→ 默认自动重建，这是安全的。
-- **`STALE`**（文件存在但与 reflog 不一致）→ **默认只报告**。因为文件可能是被
-  有意设成该值的（例如刻意丢弃了某个提交），盲目覆盖会把回退动作撤销。
+- **引用解析顺序与 git 完全一致**：先读 loose 文件，读不到再查 `packed-refs`，两者都没有才算缺失。
+  分支被 `git gc` / `git pack-refs --all` 打包后 loose 文件按设计消失，**这是健康状态不是丢失**
+  （2026-09-27 之前的版本只看 loose，把 5 个已打包分支全误报为 `LOST`，详见 CHANGELOG）。
+  `-All` 的检查集合同样纳入只存在于 `packed-refs` 的分支——否则打包后的分支会整个逃出检查范围。
+- **`LOST`**（loose 与 packed 都解析不到、reflog 有值）→ 默认自动重建，这是安全的。
+- **`STALE`**（解析到的值与 reflog 不一致）→ **默认只报告**。因为该值可能是被
+  有意设成的（例如刻意丢弃了某个提交），盲目覆盖会把回退动作撤销。
 - `-RepoRoot` 可显式指定仓库；省略时取脚本所在目录的父目录。
 
 **`post-commit` hook 已安装**（`.git/hooks/post-commit`），每次提交后静默跑一次修复，

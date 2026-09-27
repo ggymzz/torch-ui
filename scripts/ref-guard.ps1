@@ -12,8 +12,11 @@
     always be rebuilt from the reflog. Plain file IO (used by this script)
     works fine - only git's own lock/rename path is affected.
 
-    This script compares every target ref's loose file with the last line of
-    its reflog and, unless -Verify is given, rewrites the file directly.
+    This script compares every target ref's resolved value with the last line
+    of its reflog and, unless -Verify is given, rewrites the file directly.
+    A ref resolves to its loose file when that exists, otherwise to its entry
+    in packed-refs (git's own precedence) - refs that git gc has packed are
+    healthy, and must not be reported as lost.
 
 .PARAMETER RepoRoot
     Repository root. Defaults to the parent directory of this script.
@@ -95,11 +98,36 @@ function Get-LastReflogSha {
     return $null
 }
 
-function Get-RefFileSha {
+function Get-PackedRefsMap {
+    param([string] $GitDir)
+    if ($null -ne $script:PackedRefsMap) { return $script:PackedRefsMap }
+    $map = @{}
+    $p = Join-Path $GitDir 'packed-refs'
+    if ([System.IO.File]::Exists($p)) {
+        foreach ($line in [System.IO.File]::ReadAllLines($p)) {
+            # skip the header comment, blank lines and peeled-tag "^<sha>" rows
+            if ($line.Length -eq 0 -or $line[0] -eq '#' -or $line[0] -eq '^') { continue }
+            $i = $line.IndexOf(' ')
+            if ($i -lt 1) { continue }
+            $sha  = $line.Substring(0, $i).Trim()
+            $name = $line.Substring($i + 1).Trim()
+            if ($sha -match '^[0-9a-f]{40}$' -and $name.Length -gt 0) { $map[$name] = $sha }
+        }
+    }
+    $script:PackedRefsMap = $map
+    return $map
+}
+
+function Get-ResolvedRefSha {
     param([string] $GitDir, [string] $RefName)
+    # Loose wins when it exists - that is git's own precedence. Fall back to
+    # packed-refs: `git gc`/`git pack-refs` deletes the loose file after packing
+    # it, and a ref that only lives in packed-refs is healthy, not lost.
     $p = Join-Path $GitDir ($RefName -replace '/', '\')
-    if (-not [System.IO.File]::Exists($p)) { return $null }
-    return [System.IO.File]::ReadAllText($p).Trim()
+    if ([System.IO.File]::Exists($p)) { return [System.IO.File]::ReadAllText($p).Trim() }
+    $map = Get-PackedRefsMap -GitDir $GitDir
+    if ($map.ContainsKey($RefName)) { return $map[$RefName] }
+    return $null
 }
 
 function Set-RefFile {
@@ -123,6 +151,11 @@ function Get-AllLocalRefNames {
             $rel = $f.Substring($root.Length).TrimStart('\') -replace '\\', '/'
             [void]$found.Add('refs/heads/' + $rel)
         }
+    }
+    # A branch whose loose file was pruned by pack-refs has no directory entry
+    # left; without this it would never be checked at all.
+    foreach ($n in (Get-PackedRefsMap -GitDir $GitDir).Keys) {
+        if ($n.StartsWith('refs/heads/')) { [void]$found.Add($n) }
     }
     return @($found) | Sort-Object
 }
@@ -167,7 +200,7 @@ $repaired = 0
 
 foreach ($refName in $targets) {
     $expected = Get-LastReflogSha -GitDir $gitDir -RefName $refName
-    $actual   = Get-RefFileSha   -GitDir $gitDir -RefName $refName
+    $actual   = Get-ResolvedRefSha -GitDir $gitDir -RefName $refName
 
     if (-not (Test-Sha $expected)) {
         if ($null -eq $expected) {
@@ -183,7 +216,7 @@ foreach ($refName in $targets) {
 
     $problems++
     $state = if ($null -eq $actual) { 'LOST' } else { 'STALE' }
-    Write-Line ('  [' + $state + '] ' + $refName + ' : file=' + $(if ($null -eq $actual) { '<missing>' } else { $actual.Substring(0, 12) }) + ' reflog=' + $expected.Substring(0, 12)) $true
+    Write-Line ('  [' + $state + '] ' + $refName + ' : resolved=' + $(if ($null -eq $actual) { '<missing>' } else { $actual.Substring(0, 12) }) + ' reflog=' + $expected.Substring(0, 12)) $true
 
     if ($Verify) { continue }
 
