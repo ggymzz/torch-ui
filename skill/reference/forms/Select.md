@@ -10,6 +10,7 @@
 import {
   Select,
   type SelectOption,
+  type SelectOptionGroup,
   type SelectProps
 } from "@torch-ui/solid/forms";
 ```
@@ -35,8 +36,6 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	optional?: boolean
 
-	options: SelectOption[]
-
 	placeholder?: string
 
 	value?: string
@@ -59,6 +58,12 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 
 	size?: ComponentSize
 
+	/** Flat list of options. Provide either `options` or `groups`, not both. */
+	options?: SelectOption[]
+
+	/** Grouped options rendered with non-selectable section headers. Provide either `options` or `groups`, not both. */
+	groups?: SelectOptionGroup[]
+
 	/** When true, show a search input in the dropdown to filter options by label. Default false. */
 
 	searchable?: boolean
@@ -66,6 +71,16 @@ export interface SelectProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'c
 	/** When true and a value is selected, show a clear (×) button that resets the value to the placeholder. Default false. */
 
 	clearable?: boolean
+
+	/**
+	 * Whether the select should trap focus and lock outside interactions while open.
+	 * Default false. Set to true when used inside a modal Dialog so that the Dialog's
+	 * focus trap is paused (via focusScopeStack) while the select is open — this
+	 * prevents the Dialog from stealing focus from the search input on every keystroke.
+	 * Side effect: outside pointer events are disabled while open (acceptable since
+	 * users only interact with the select while it's open).
+	 */
+	modal?: boolean
 
 	/** Ref forwarded to the root wrapper div. */
 
@@ -85,13 +100,28 @@ export interface SelectOption {
 
 	label: string
 
-	/** Optional icon shown before the label. */
+	/**
+	 * Optional icon shown before the label.
+	 *
+	 * Pass a factory function (`() => <Icon />`) when the same option object is reused by both the
+	 * trigger and the dropdown list: a static element can only be inserted once, so the second
+	 * mount renders nothing. The factory is invoked on each insertion.
+	 */
 
-	icon?: JSX.Element
+	icon?: JSX.Element | (() => JSX.Element)
 
 	/** Optional hex or CSS color for a status dot (e.g. #22c55e). When set, a small colored dot is shown before the label; useful for status/state fields. */
 
 	color?: string | null
 
+}
+```
+
+```ts
+export interface SelectOptionGroup {
+	/** The section heading text. */
+	group: string
+	/** Options belonging to this group. */
+	options: SelectOption[]
 }
 ```

@@ -58,6 +58,12 @@ export interface TableFooterProps
 export interface TableRowProps extends JSX.HTMLAttributes<HTMLTableRowElement> {
 	/** When false, hover background is not applied (e.g. for empty state, loading, or group header rows). Default true for body rows. */
 	hover?: boolean
+	/**
+	 * Explicit stripe override for grouped tables. When defined, overrides CSS `even:` striping so
+	 * the stripe pattern resets to white at the start of each group.
+	 * Omit (undefined) to fall back to CSS `even:bg-surface-stripe` (flat tables).
+	 */
+	stripe?: boolean
 }
 ```
 

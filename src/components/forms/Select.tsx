@@ -20,9 +20,15 @@ export interface SelectOption {
 
 	label: string
 
-	/** Optional icon shown before the label. */
+	/**
+	 * Optional icon shown before the label.
+	 *
+	 * Pass a factory function (`() => <Icon />`) when the same option object is reused by both the
+	 * trigger and the dropdown list: a static element can only be inserted once, so the second
+	 * mount renders nothing. The factory is invoked on each insertion.
+	 */
 
-	icon?: JSX.Element
+	icon?: JSX.Element | (() => JSX.Element)
 
 	/** Optional hex or CSS color for a status dot (e.g. #22c55e). When set, a small colored dot is shown before the label; useful for status/state fields. */
 
@@ -49,6 +55,13 @@ function statusColorStyle(color: string | null | undefined): string | undefined 
 	if (t.startsWith('#') || t.startsWith('rgb') || /^[a-z]+$/i.test(t)) return t
 
 	return undefined
+
+}
+
+/** Resolve an option icon that may be a pre-created element or a factory function. */
+function resolveOptionIcon(icon: JSX.Element | (() => JSX.Element)): JSX.Element {
+
+	return typeof icon === 'function' ? (icon as () => JSX.Element)() : icon
 
 }
 
@@ -369,7 +382,7 @@ export const Select = (props: SelectProps) => {
 						<StatusDot color={itemProps.item.rawValue.color} />
 					</Show>
 					<Show when={itemProps.item.rawValue.icon}>
-						<span class="flex-shrink-0 text-ink-500">{itemProps.item.rawValue.icon}</span>
+						<span class="flex-shrink-0 text-ink-500">{resolveOptionIcon(itemProps.item.rawValue.icon!)}</span>
 					</Show>
 					<span class="min-w-0 truncate">{itemProps.item.rawValue.label}</span>
 				</span>
@@ -497,7 +510,7 @@ export const Select = (props: SelectProps) => {
 
 								<Show when={opt.icon}>
 
-									<span class="shrink-0 text-ink-500">{opt.icon}</span>
+									<span class="shrink-0 text-ink-500">{resolveOptionIcon(opt.icon!)}</span>
 
 								</Show>
 

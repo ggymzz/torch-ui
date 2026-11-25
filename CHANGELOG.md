@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **`Select`**: new `clearable` prop — when set and a value is selected, a clear (×) button appears in the trigger that resets the value back to the placeholder (fires `onValueChange('')`).
+- **`Select`**: `SelectOption.icon` now also accepts a factory function (`() => JSX.Element`). The same option object is rendered twice (trigger + dropdown list), and a pre-created element can only be inserted once — the second mount rendered nothing (e.g. font previews vanishing after opening the list), forcing consumers into `as unknown as JSX.Element` casts. Icons are now resolved on each insertion; plain `JSX.Element` values are unchanged.
 - **Docs**: added `FORK.md` — the maintenance contract for this in-project fork (upstream status, diff scope, version policy, component-change workflow, dist policy, environment recovery) plus §10, the machine-specific git constraint below.
 - **Tooling**: added `scripts/ref-guard.ps1` — detects and repairs git refs that this machine silently drops. Root cause is documented in `FORK.md` §10: git cannot create new subdirectories under `.git/refs/`, so every ref path that needs one (`refs/heads/feature/x`, `refs/tags/v1/x`, a `git fetch`ed `refs/remotes/<remote>/<new>` branch) is written nowhere while git still reports success and exit 0. The commit object and the reflog entry *are* written, so the ref is rebuilt from the reflog's last line. `post-commit` hook wires this up automatically.
 

@@ -1,6 +1,6 @@
 # Torch UI Component Reference Index
 
-Generated: 2026-03-26
+Generated: 2026-11-25
 Total components: 90
 
 ## actions

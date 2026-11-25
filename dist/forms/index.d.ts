@@ -24,8 +24,14 @@ declare function TextArea(props: TextAreaProps): JSX.Element;
 interface SelectOption {
     value: string;
     label: string;
-    /** Optional icon shown before the label. */
-    icon?: JSX.Element;
+    /**
+     * Optional icon shown before the label.
+     *
+     * Pass a factory function (`() => <Icon />`) when the same option object is reused by both the
+     * trigger and the dropdown list: a static element can only be inserted once, so the second
+     * mount renders nothing. The factory is invoked on each insertion.
+     */
+    icon?: JSX.Element | (() => JSX.Element);
     /** Optional hex or CSS color for a status dot (e.g. #22c55e). When set, a small colored dot is shown before the label; useful for status/state fields. */
     color?: string | null;
 }

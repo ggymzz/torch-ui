@@ -27,11 +27,7 @@ import {
 ## Props
 
 ```ts
-export interface DataTableSearchProps {
-	value: string
-	onValueChange: (value: string) => void
-	placeholder: string
-}
+export type DataTableSearchProps = InputProps
 ```
 
 ```ts
@@ -136,7 +132,8 @@ export type DataTableProps<T> = JSX.HTMLAttributes<HTMLDivElement> & DataTablePa
 	columns: ColumnDef<T>[]
 	/** Escape hatch: return a complete <TableRow> to override, or null/undefined for column-based default. Returning anything else (fragment, bare text, false) produces invalid table markup. */
 	renderRowOverride?: (item: T) => JSX.Element | null | undefined
-	emptyMessage: string
+	/** Message shown when items is empty and no emptyState is provided. Default: "No data". */
+	emptyMessage?: string
 	/** Number of skeleton rows to show while loading. Default: 5. */
 	skeletonRows?: number
 }
@@ -163,6 +160,6 @@ export interface ColumnDef<T> {
 ```ts
 export type DataTablePagination = Pick<
 	PaginationProps,
-	'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast'
+	'totalItems' | 'page' | 'totalPages' | 'pageSize' | 'onPageChange' | 'onPageSizeChange' | 'pageSizeOptions' | 'maxPages' | 'showFirstLast' | 'locale' | 'labels'
 >
 ```

@@ -92,6 +92,10 @@ export interface DrawerProps extends JSX.HTMLAttributes<HTMLElement> {
 
 	contentClass?: string
 
+	/** Title text rendered in the fixed header bar. When provided with bottom actions, appears alongside the close button in a non-scrolling header. */
+
+	title?: string
+
 }
 ```
 

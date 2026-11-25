@@ -75,6 +75,10 @@ export interface RadioGroupProps {
 
 	size?: ComponentSize
 
+	/** Removes item padding and tightens gap — for dense UIs like filter/sort drawers. */
+
+	compact?: boolean
+
 	/** Additional class for the root. */
 
 	class?: string

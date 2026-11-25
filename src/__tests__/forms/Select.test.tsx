@@ -220,3 +220,14 @@ describe('Select — grouped options', () => {
 		expect(screen.getByText('United Kingdom')).toBeInTheDocument()
 	})
 })
+
+describe('Select — option icon', () => {
+	it('renders a factory icon in both the trigger and the dropdown', async () => {
+		const user = userEvent.setup()
+		const options = [{ value: 'aa', label: 'Aa Preview', icon: () => <span data-testid="aa-icon">Aa</span> }]
+		const { container } = renderUI(() => <Select options={options} value="aa" />)
+		expect(screen.getAllByTestId('aa-icon').length).toBe(1)
+		await user.click(container.querySelector('button')!)
+		expect(screen.getAllByTestId('aa-icon').length).toBeGreaterThanOrEqual(2)
+	})
+})
