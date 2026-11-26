@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.21-shopfaas.1] - 2026-11-26
+
 ### Removed
 - **Dependencies**: dropped the accidental self-dependency `"@torch-ui/solid"` from `dependencies`. Because this package *is* `@torch-ui/solid`, the declaration made npm resolve the published copy into `node_modules/@torch-ui/solid` (0.6.20) and recursively nest a second one (0.6.19) beneath it — pure install/build noise. No source file imports `@torch-ui/solid`; the only consumers are workspace links (`workspace:*`) from `shopfaas-store`, `shopfaas-suite` and `packages/spa-shared`.
 

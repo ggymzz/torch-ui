@@ -104,8 +104,8 @@ git -C <repo> diff --shortstat 2bd0573 HEAD
 - 上游版本线**冻结在 `0.6.20`，不再跟随**。
 - 当前维护基线为上游 `0.6.20` + fork 定制补丁；仅接受稳定版本线内 patch/minor 安全维护，不升级 major。
 - monorepo 内消费走 `workspace:*`，包 exports 指向**已跟踪的 `dist/`**；修改 `src/` 或影响运行时的依赖后必须先构建并提交对应 `dist/`，否则消费方仍执行旧产物。
-- 当前维护任务**不发布 npm**。继承的 `.github/workflows/publish.yml` 在推送 `v*` 标签时通过 OIDC 发布到公共 npm，且 `package.json` 的 `publishConfig.access` 为 `public`；这与私有 registry 策略不一致，未经单独授权与配置审查不得创建发布标签或运行发布流程。
-- 若未来另行授权对外发布到私有 registry，版本号使用 `0.6.2x-<项目标识>.<n>` 形式，避免与上游语义冲突，例如 `0.6.21-shopfaas.1`；发布前必须同步调整 workflow、registry 与 publish 配置。
+- 2026-11-26 用户单独授权发布 `@torch-ui/solid@0.6.21-shopfaas.1` 到公共 npm。既有 `.github/workflows/publish.yml` 在推送 `v*` 标签时通过 GitHub OIDC 发布，`package.json` 的 `publishConfig.access` 为 `public`、`provenance` 为 `true`；本次只发布该 fork 预发布版本，固定使用 `--tag next`，不覆盖上游 `0.6.20`，不移动 `latest`。
+- 后续 fork 版本使用 `0.6.2x-<项目标识>.<n>` 形式，避免与上游语义冲突，例如 `0.6.21-shopfaas.1`；每次发布仍需单独授权，并在版本、测试、构建与 dry-run 全部通过后创建对应 `v*` 标签。
 
 ---
 
@@ -223,7 +223,7 @@ bun install                   # monorepo 侧链接 workspace
 
 | 分支 | 状态 | 处置 |
 |---|---|---|
-| `fork/release` | 工作分支；本次维护基线为 `26c2fca`，授权仅限验收通过后的本地提交，不推送 | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
+| `fork/release` | 工作分支；维护提交 `de7dacf` 已推送，发布版本 `0.6.21-shopfaas.1` 由用户单独授权 | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
 | `main` | 等于上游快照 `2bd0573` | 保留（作为上游基线） |
 | `pr/upstream-a11y-i18n-fixes` | `fork/release` 的前 4 个提交（`f848cfc`→`1b7e595`），对上游仍有价值 | **保留**（是给上游的 PR 分支） |
 | `fix/a11y-i18n-and-component-fixes` | 2026-07 ~ 08 的开发线，18 个提交 | 建议归档 |

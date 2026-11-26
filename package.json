@@ -1,6 +1,6 @@
 {
   "name": "@torch-ui/solid",
-  "version": "0.6.20",
+  "version": "0.6.21-shopfaas.1",
   "description": "A modern, accessible SolidJS component library built with Tailwind CSS and Kobalte",
   "type": "module",
   "sideEffects": false,
