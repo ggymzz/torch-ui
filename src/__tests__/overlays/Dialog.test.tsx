@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { screen } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
+import { screen, waitFor } from '@solidjs/testing-library'
 import userEvent from '@testing-library/user-event'
 import { Dialog } from '../../components/overlays/Dialog'
 import { renderUI } from '../../test/test-utils'
@@ -61,5 +62,37 @@ describe('Dialog', () => {
 		const closeBtn = screen.getByRole('button', { name: /close/i })
 		await user.click(closeBtn)
 		expect(onClose).toHaveBeenCalledTimes(1)
+	})
+
+	it('restores focus after Escape when no Kobalte trigger is registered', async () => {
+		const user = userEvent.setup()
+		const [open, setOpen] = createSignal(false)
+		const ControlledDialog = () => (
+			<Dialog
+				open={open()}
+				onOpenChange={setOpen}
+				animationDuration={0}
+				overlay={false}
+				panelAnimation="none"
+				overlayAnimation="none"
+				header="Controlled dialog"
+			>
+				<button type="button">Inside</button>
+			</Dialog>
+		)
+		renderUI(() => (
+			<>
+				<button type="button" onClick={() => setOpen(true)}>Open dialog</button>
+				<ControlledDialog />
+			</>
+		))
+		const trigger = screen.getByRole('button', { name: 'Open dialog' })
+		await user.click(trigger)
+		const dialog = screen.getByRole('dialog')
+		await user.keyboard('{Escape}')
+		const animationEnd = new Event('animationend', { bubbles: true })
+		Object.defineProperty(animationEnd, 'animationName', { value: '' })
+		dialog.dispatchEvent(animationEnd)
+		await waitFor(() => expect(document.activeElement).toBe(trigger))
 	})
 })

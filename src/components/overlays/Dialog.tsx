@@ -52,6 +52,10 @@ export interface DialogProps extends JSX.HTMLAttributes<HTMLDivElement> {
 	onCloseComplete?: () => void
 }
 
+type DialogPropsWithAutoFocus = DialogProps & {
+	onCloseAutoFocus?: (event: Event) => void
+}
+
 const sizeClasses: Record<DialogSize, string> = {
 	xs: 'max-w-xs',
 	sm: 'max-w-sm',
@@ -135,7 +139,7 @@ function ensureDialogStyles() {
 
 export function Dialog(props: DialogProps) {
 	const icons = useIcons()
-	const [local, others] = splitProps(props, [
+	const [local, others] = splitProps(props as DialogPropsWithAutoFocus, [
 		'open',
 		'onOpenChange',
 		'onClose',
@@ -151,6 +155,7 @@ export function Dialog(props: DialogProps) {
 		'animationDuration',
 		'animationExitDuration',
 		'onCloseComplete',
+		'onCloseAutoFocus',
 		'class',
 		'children',
 		'header',
@@ -210,6 +215,8 @@ export function Dialog(props: DialogProps) {
 	const hasCloseRow = () => (local.onClose != null || local.onOpenChange != null) && local.showCloseButton !== false
 	const hasHeaderRow = () => !!(local.header || hasCloseRow())
 
+	let previouslyFocusedElement: HTMLElement | null = null
+
 	// 弹窗内容挂载时（ref 回调在 DOM 插入的 render 阶段执行）尽力同步聚焦弹窗内首个可聚焦元素
 	// （或面板自身），改善初始焦点体验。注意：由于 Kobalte createHideOutside 在 effect 中同步对弹窗外
 	// 元素设置 aria-hidden，而本 ref 回调的 focus 对 portal 元素可能被浏览器延迟，因此本处**无法**单独
@@ -218,6 +225,15 @@ export function Dialog(props: DialogProps) {
 	// 同时转发调用方传入的 ref（若有），不破坏透传。
 	const mergedContentRef = (el: HTMLElement | null) => {
 		if (el) {
+			const active = document.activeElement
+			if (
+				active instanceof HTMLElement &&
+				active !== document.body &&
+				active !== document.documentElement &&
+				!el.contains(active)
+			) {
+				previouslyFocusedElement = active
+			}
 			const focusable = el.querySelector<HTMLElement>(
 				'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 			)
@@ -225,6 +241,14 @@ export function Dialog(props: DialogProps) {
 			else el.focus({ preventScroll: true })
 		}
 		if (typeof local.ref === 'function') (local.ref as (el: HTMLElement) => void)(el as HTMLElement)
+	}
+
+	const onCloseAutoFocus = (e: Event) => {
+		local.onCloseAutoFocus?.(e)
+		if (e.defaultPrevented) return
+		const target = previouslyFocusedElement
+		previouslyFocusedElement = null
+		if (target?.isConnected) target.focus({ preventScroll: true })
 	}
 
 	return (
@@ -269,6 +293,7 @@ export function Dialog(props: DialogProps) {
 							)}
 							data-animation={panelAnimation() !== 'none' ? panelAnimation() : undefined}
 							onInteractOutside={(e) => { if (!closeOnOverlay()) e.preventDefault() }}
+							onCloseAutoFocus={onCloseAutoFocus}
 							{...others}
 						>
 							{/* Visual panel */}

@@ -3,7 +3,7 @@
 > 本目录是 `@torch-ui/solid` 在 ShopFaaS monorepo 内的 fork，作为 workspace 成员被消费。
 > 本文档说明它与上游的关系、差异范围、以及日常维护必须遵守的契约。
 >
-> 最后更新：2026-09-16
+> 最后更新：2026-11-26
 
 ---
 
@@ -37,8 +37,8 @@
 
 ### 仓库历史形态
 
-本仓库是**浅历史**：全库 16 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
-+ 本项目开发提交 15 个（2026-08-06 → 2026-09-16）。上游的完整提交历史不在本地。
+本仓库是**浅历史**：全库 21 个提交 = 上游快照 1 个（`2bd0573`，对应上游 0.6.20）
++ 本项目开发提交 20 个（2026-08-06 → 2026-11-26 维护前）。上游的完整提交历史不在本地。
 
 ### 本 fork 自有的文件（上游没有）
 
@@ -57,10 +57,10 @@
 git -C <repo> diff --shortstat 2bd0573 HEAD
 ```
 
-截至 `a2811c3` 的参考值：
+截至维护前基线 `26c2fca` 的参考值：
 
 ```
-79 files changed, 3255 insertions(+), 1676 deletions(-)
+91 files changed, 3941 insertions(+), 1790 deletions(-)
 ```
 
 其中 `src/` 部分 **45 个文件**（1071 insertions / 278 deletions，含新增
@@ -71,6 +71,7 @@ git -C <repo> diff --shortstat 2bd0573 HEAD
 
 - a11y / i18n 打包修复：Pagination、Select、DataTable、Drawer、Autocomplete、FileUpload
 - Dialog 打开时聚焦首个可聚焦元素
+- Dialog 未注册 Kobalte Trigger 时，关闭后回退聚焦到原外部元素
 - FileUpload 对话框关闭后焦点恢复到触发按钮
 - 受控 Select 值置空时清除 trigger 残留旧值；新增 `clearable` 一键清除
 - Select / MultiSelect 选项与值同时变更时的更新循环
@@ -101,9 +102,10 @@ git -C <repo> diff --shortstat 2bd0573 HEAD
 ## 4. 版本与发布策略
 
 - 上游版本线**冻结在 `0.6.20`，不再跟随**。
-- monorepo 内消费走 `workspace:*`，**不需要发布**即可生效。
-- 若需对外发布（私有 registry），版本号使用 `0.6.2x-<项目标识>.<n>` 形式，
-  避免与上游语义冲突，例如 `0.6.21-shopfaas.1`。
+- 当前维护基线为上游 `0.6.20` + fork 定制补丁；仅接受稳定版本线内 patch/minor 安全维护，不升级 major。
+- monorepo 内消费走 `workspace:*`，包 exports 指向**已跟踪的 `dist/`**；修改 `src/` 或影响运行时的依赖后必须先构建并提交对应 `dist/`，否则消费方仍执行旧产物。
+- 当前维护任务**不发布 npm**。继承的 `.github/workflows/publish.yml` 在推送 `v*` 标签时通过 OIDC 发布到公共 npm，且 `package.json` 的 `publishConfig.access` 为 `public`；这与私有 registry 策略不一致，未经单独授权与配置审查不得创建发布标签或运行发布流程。
+- 若未来另行授权对外发布到私有 registry，版本号使用 `0.6.2x-<项目标识>.<n>` 形式，避免与上游语义冲突，例如 `0.6.21-shopfaas.1`；发布前必须同步调整 workflow、registry 与 publish 配置。
 
 ---
 
@@ -148,9 +150,15 @@ bun run skill/scripts/extract-api.ts    # 从源码重新生成 API 参考
 **⑥ 验证**
 
 ```bash
-npm run typecheck    # tsc --noEmit
-npm run test         # vitest run
+npm --workspaces=false run typecheck    # tsc --noEmit
+npm --workspaces=false test             # vitest run
+npm --workspaces=false run build        # 需要更新 dist 时执行
+npm --workspaces=false ci --dry-run --ignore-scripts
+npm --workspaces=false ls --depth=0
+npm --workspaces=false audit
 ```
+
+> npm 12 会把嵌套仓库内的命令上溯到父 workspace。所有 install / ci / audit / ls 命令都必须显式带 `--workspaces=false`，否则可能检查或修改错误目录。
 
 涉及交互 / 焦点 / 可访问性的改动，还应在消费方（`shopfaas-store` 或 `shopfaas-suite`）
 实跑验证，不要只看单测。
@@ -175,20 +183,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ref-guard.ps1 -All -
 
 ## 6. dist 与提交策略
 
-上游在 `chore: include dist for github installs` 之后**将 `dist/` 纳入版本控制**，
-目的是让 `github:` 协议的安装方式可用。本项目在 monorepo 内消费走 workspace 源码，
-理论上不需要提交 dist。
+上游在 `chore: include dist for github installs` 之后将 `dist/` 纳入版本控制。
+本 fork 的 `main`、`module`、`types` 与所有 `exports` 均指向 `dist/`；monorepo 的
+`workspace:*` 链接只负责解析包路径，**不会让消费方直接执行 `src/`**。
 
-**现状**：`dist/` 仍为 tracked，每次 `npm run build` 都会产生大量 diff，
-提交历史噪音偏大（相对上游的 79 个改动文件中，29 个是 dist 产物）。
+**既定决策：继续跟踪 `dist/`，不停止跟踪。** `.gitignore` 不得忽略 `dist/`；构建入口、
+hashed `dist/chunk/*` 与声明文件必须作为同一产物集合入库。每次修改 `src/` 或影响运行时产物后，
+必须在 fork 仓库执行 `npm --workspaces=false run build`，检查完整 `dist/` diff，并验证入口引用的
+每个相对 chunk/声明文件均被 Git 跟踪，再与源码、测试、CHANGELOG 一并提交。仅改文档且未触碰
+运行时依赖时，构建应无产物变化。
 
-**待决策**：若确认本项目只用 workspace 消费、不再用 `github:` 安装，可执行
-
-```bash
-git rm -r --cached dist/
-```
-
-停止跟踪构建产物。`.gitignore` 中已有 `dist/` 规则，只是对已 tracked 文件不生效。
+这样会增加提交中的产物文件数，但能保证 store、suite、spa-shared 以及 git 安装方式
+取得与源码一致的实现。不得用 `git rm -r --cached dist/` 作为维护手段。
 
 ---
 
@@ -202,7 +208,7 @@ cd <repo-root>
 git clone https://github.com/ggymzz/torch-ui.git torch-ui-fork
 cd torch-ui-fork
 git checkout fork/release     # ⚠️ 本机上此分支名有缺陷，见 §10.4
-npm install                   # 安装组件库自身依赖（构建 / 测试用）
+npm --workspaces=false install       # 安装组件库自身依赖（构建 / 测试用）
 cd ..
 bun install                   # monorepo 侧链接 workspace
 ```
@@ -217,7 +223,7 @@ bun install                   # monorepo 侧链接 workspace
 
 | 分支 | 状态 | 处置 |
 |---|---|---|
-| `fork/release` | 工作分支，与 `origin/fork/release` 同步（= `7331a08`，2026-09-16 经代理推送） | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
+| `fork/release` | 工作分支；本次维护基线为 `26c2fca`，授权仅限验收通过后的本地提交，不推送 | **在用，保留**；⚠️ 嵌套名，本机有缺陷（§10.4） |
 | `main` | 等于上游快照 `2bd0573` | 保留（作为上游基线） |
 | `pr/upstream-a11y-i18n-fixes` | `fork/release` 的前 4 个提交（`f848cfc`→`1b7e595`），对上游仍有价值 | **保留**（是给上游的 PR 分支） |
 | `fix/a11y-i18n-and-component-fixes` | 2026-07 ~ 08 的开发线，18 个提交 | 建议归档 |
@@ -242,7 +248,8 @@ bun install                   # monorepo 侧链接 workspace
   我们的维护面是相对上游的那批改动（`src/` 45 个文件）。
 - 上游已停更，不会有新功能或破坏性变更，因此**不设「跟随上游」的工作项**。
 - 只发 dist + styles 到 npm（`package.json` 的 `files` 字段不含 `src`），
-  所以 **npm 安装方式拿不到源码**，本项目必须用 workspace 或 git 方式消费。
+  所以 **npm 安装方式拿不到源码**。本项目的 workspace 消费同样解析到 `dist/`，
+  源码改动必须重建产物；git 安装方式则依赖已跟踪的 `dist/`。
 
 ---
 
